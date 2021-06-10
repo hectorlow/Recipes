@@ -1,0 +1,147 @@
+### React + Flask fullstack application
+
+-------------------------------------------------------------------------------
+Initialise project with npm
+-------------------------------------------------------------------------------
+npm init
+- npm init -y, initialise package.json file
+create src folder
+- create index.html file, base html file
+- create index.js, entry point js file
+
+-------------------------------------------------------------------------------
+webpack
+-------------------------------------------------------------------------------
+Install webpack modules
+- install webpack, webpack-cli, webpack-dev-server as dev dependencies
+-- npm install webpack webpack-cli webpack-dev-server --save-dev
+
+Webpack config file
+- create webpack.config.js file
+- install path and html-webpack-plugin
+- npm run webpack: search for index.js file in src folder and bundle to 
+dist/main.js
+- webpack module.exports
+-- entry: entrypoint file of project
+-- output: where to output bundled file
+-- resolve: where to find node_modulesa and create alias
+-- devServer: path to serve content and port number of dev server
+-- plugins: configure plugins used in project
+
+Running webpack
+- running "npm run webpack", will build the project for production
+-- bundle file in build folder
+
+-------------------------------------------------------------------------------
+React and react-dom
+-------------------------------------------------------------------------------
+Install react and react-dom
+- create base index.js file with ReactDOM.render(
+    <App />, document.getElementById("root")
+  );
+
+-------------------------------------------------------------------------------
+Babel
+-------------------------------------------------------------------------------
+Install babel for transpilling react code
+- npm install --save-dev
+-- @babel/core: compile ES6 and above to ES5
+-- @babel/node: CLI for babel, used in development only
+-- @babel/preset-env: polyfills to provide modern functionality to older
+browser that do not support it
+-- @babel/preset-react: compile React code to ES5
+-- babel-loader: transform import statements to require
+
+-------------------------------------------------------------------------------
+Different loaders for different file types
+-------------------------------------------------------------------------------
+Install loaders as devDependencies
+- style-loader: add styles to the dom
+- css-loader: handles css file imports
+- sass-loader: handle scss file imports
+- node-sass: compile scss/sass files into normal css files
+- image-webpack-loader: load images in project
+- file-loader: handle imports of visual and audio files
+
+Create babel configuration file
+- .babelrc
+- let babel-loader know what packages to use to compile the code
+
+-------------------------------------------------------------------------------
+Eslint
+-------------------------------------------------------------------------------
+Eslint
+- npx eslint --init: initialise eslint config file
+- use airbnb style guide, install peer dependencies
+- can use --fix
+- run linting on project files
+-- add files/folders to .eslintignore to ignore linting
+-- npx eslint . or add "eslint ." to package.json scripts  
+
+
+Resolve jsx extension in webpack config file
+- resolve: {
+  modules: ...,
+  extensions: ['.js', '.jsx'],
+}
+
+Add alias to eslint and webpack
+- npm i eslint-plugin-import eslint-import-resolver-alias
+- https://www.npmjs.com/package/eslint-import-resolver-alias
+
+-------------------------------------------------------------------------------
+Prettier
+-------------------------------------------------------------------------------
+Prettier
+- npm i eslint-config-prettier eslint-plugin-prettier prettier --save-dev
+- eslint and prettier have conflicts between each other, install module to
+resolve those conflicts
+- need to restart vscode to apply new config changes
+
+
+-------------------------------------------------------------------------------
+Best practices
+-------------------------------------------------------------------------------
+Classnames package
+- for dynamic classes
+- https://www.npmjs.com/package/classnames
+
+Reduce length of classnames
+- hash classnames into smaller number of characters on bundling
+- didn't manage to do it, localIdentName not working
+
+Structuring projects and naming components
+- presentational and container components kept in src/components
+- group components by module/feature, e.g. User/form
+- keep generic components inside components/UI
+- keep screens simple and minimal
+- group screens according to route definition
+-- for route user/list, screen located at src/screens/user/List.jsx
+- name components base on relative path to src or component
+-- UserList in component or ScreensUserList in src/screens/user/List
+- don't repeat component name if folder is the same name
+
+
+-------------------------------------------------------------------------------
+CSS and stylesheets
+-------------------------------------------------------------------------------
+Need to think of a way to maintain stylesheets easily in the future
+- global stylesheet
+- naming convention
+- BEM
+- OOCSS
+
+-------------------------------------------------------------------------------
+React router
+-------------------------------------------------------------------------------
+Getting it to work
+- need to add publicPath: ''
+- add historyApiFallback: true to devServer to access route directly
+
+
+-------------------------------------------------------------------------------
+Understanding codebase
+-------------------------------------------------------------------------------
+Guideline file
+- should have a guideline on best practices used in codebase
+- so people know what method i have adopted and can understand codebase easily

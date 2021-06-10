@@ -1,0 +1,36 @@
+.ScreensLogin {
+  &__grid-item {
+    height: 100vh;
+  }
+
+  &__photo {
+    height: 100vh;
+    width: 50vw;
+    object-fit: cover;
+  }
+
+  &__form-section {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  &__navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: 32px 32px 0px 32px;
+  }
+
+  &__loginForm {
+    width: 80%;
+  }
+
+  &__loginForm-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+}
