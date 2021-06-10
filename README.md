@@ -1,5 +1,5 @@
 # Recipes
 Web application to store recipes online
 
-frontend - React
+frontend - React  
 backend - Flask
