@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Hidden } from '@material-ui/core';
-import GuestNavbar from 'components/navbar/GuestNavbar';
+import Navbar from 'components/Navbar';
 import './LoginSignupScreenTemplate.scss';
 
 const LoginSignupScreenTemplate = ({ Form, sideImage }) => (
@@ -18,7 +18,7 @@ const LoginSignupScreenTemplate = ({ Form, sideImage }) => (
     <Grid item xs={12} sm={6}>
       <section className="LoginSignupScreenTemplate__form-section">
         <nav className="LoginSignupScreenTemplate__navbar">
-          <GuestNavbar />
+          <Navbar routes={['Recipes', 'Login', 'Signup']} />
         </nav>
         <div className="LoginSignupScreenTemplate__loginForm-container">
           <div className="LoginSignupScreenTemplate__loginForm">

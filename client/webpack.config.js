@@ -4,7 +4,7 @@ const DirectoryNamedWebpackPlugin = require('directory-named-webpack-plugin');
 
 module.exports = {
   // entrypoint of the project
-  entry: path.join(__dirname, 'src', 'index.jsx'),
+  entry: path.join(__dirname, 'src', 'index.js'),
 
   // path and filename of the production build bundle
   output: {
@@ -26,6 +26,7 @@ module.exports = {
       src: path.resolve(__dirname, 'src'),
       screens: path.resolve(__dirname, 'src/screens'),
       components: path.resolve(__dirname, 'src/components'),
+      images: path.resolve(__dirname, 'src/images'),
     },
     // search for directory named js file as entrypoint of folder
     // if there is an index.js file, use that first

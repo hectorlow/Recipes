@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 import FormTemplate from 'components/form/FormTemplate';
 import './LoginForm.scss';
 
 const LoginForm = () => {
+  const history = useHistory();
   const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -12,10 +14,10 @@ const LoginForm = () => {
       .post('http://localhost:5000/api/login', {
         username: emailOrUsername,
         password,
-        token,
       })
       .then((response) => {
         console.log(response.data, 'login response data');
+        history.push('/recipes');
       })
       .catch((error) => {
         console.log(error.request.response, 'error response');

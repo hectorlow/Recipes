@@ -1,0 +1,38 @@
+.AppDashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+
+  &__navbar {
+    height: 64px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    margin-right: 32px;
+  }
+
+  &__mobile-navbar {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &__mobile-screen-name {
+    font-size: 18px;
+    line-height: 48px;
+    margin-left: 16px;
+  }
+
+  &__drawer-navlink {
+    color: black;
+    font-family: Roboto;
+    line-height: 40px;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  &__content {
+    height: 100%;
+    background-color: #FDD90166;
+  }
+}

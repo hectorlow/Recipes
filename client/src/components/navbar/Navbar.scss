@@ -1,0 +1,40 @@
+.Navbar {
+  &__container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 24px;
+  }
+
+  &__navlink {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    line-height: 24px;
+    min-width: 100px;
+    margin-left: 32px;
+    text-decoration: none;
+    color: #604E40;
+    font-size: 18px;
+
+    &--active {
+      img {
+        display: block;
+      }
+    }
+  }
+
+  &__icon-container {
+    width: 22px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &__pizza-icon {
+    display: none;
+    height: 18px;
+    width: 18px;
+  }
+}

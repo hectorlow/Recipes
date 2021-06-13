@@ -17,6 +17,10 @@ module.exports = {
   },
   plugins: ['react'],
   rules: {
+    'import/no-unresolved': [
+      2,
+      { ignore: ['(src|screens|components|images)'] },
+    ],
     'max-len': [2, { code: 80, tabWidth: 2, ignoreUrls: true }],
     // max lines in single js/jsx file
     'max-lines': ['error', { skipBlankLines: true, skipComments: true }],
@@ -31,6 +35,7 @@ module.exports = {
           src: './src',
           screens: './src/screens',
           components: './src/components',
+          images: './src/images',
         },
         extensions: ['.js'],
       },
