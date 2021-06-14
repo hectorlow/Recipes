@@ -18,7 +18,13 @@ const LoginSignupScreenTemplate = ({ Form, sideImage }) => (
     <Grid item xs={12} sm={6}>
       <section className="LoginSignupScreenTemplate__form-section">
         <nav className="LoginSignupScreenTemplate__navbar">
-          <Navbar routes={['Recipes', 'Login', 'Signup']} />
+          <Navbar
+            routes={[
+              { label: 'Recipes', path: '/recipes' },
+              { label: 'Login', path: '/login' },
+              { label: 'Signup', path: '/signup' },
+            ]}
+          />
         </nav>
         <div className="LoginSignupScreenTemplate__loginForm-container">
           <div className="LoginSignupScreenTemplate__loginForm">

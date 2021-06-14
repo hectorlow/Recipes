@@ -1,0 +1,61 @@
+.AddRecipe {
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+
+  &__paper {
+    margin: auto;
+    padding: 16px;
+  }
+
+  &__grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  &__grid-item {
+    margin-bottom: 8px;
+  }
+
+  &__form-title {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  &__form-control {
+    margin-top: 16px;
+  }
+
+  &__form-text-field {
+    margin-top: 16px;
+  }
+
+  &__action-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 16px;
+    margin-bottom: 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .AddRecipe {
+    padding: 32px;
+
+    &__paper {
+      padding: 32px;
+    }
+
+    &__grid-container {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    &__action-buttons {
+      margin-top: 32px;
+      margin-bottom: 4px;
+    }
+  }
+}

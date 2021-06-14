@@ -5,12 +5,12 @@ import pizzaIcon from 'images/pizza.png';
 import './Navbar.scss';
 
 const Navbar = ({ routes }) => {
-  const renderNavLink = (label, to) => (
+  const renderNavLink = (label, path) => (
     <NavLink
       key={label}
       className="Navbar__navlink"
       activeClassName="Navbar__navlink--active"
-      to={to}
+      to={path}
     >
       <div className="Navbar__icon-container">
         <img src={pizzaIcon} alt="" className="Navbar__pizza-icon" />
@@ -21,13 +21,18 @@ const Navbar = ({ routes }) => {
 
   return (
     <div className="Navbar__container">
-      {routes.map((route) => renderNavLink(route, route.toLowerCase()))}
+      {routes.map((route) => renderNavLink(route.label, route.path))}
     </div>
   );
 };
 
 Navbar.propTypes = {
-  routes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  routes: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      path: PropTypes.string,
+    })
+  ).isRequired,
 };
 
 export default Navbar;

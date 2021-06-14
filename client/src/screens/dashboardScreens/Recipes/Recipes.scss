@@ -1,3 +1,40 @@
 .Recipes {
-  padding: 16px;
+  padding: 32px;
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+
+@media (min-width: 680px) {
+  .Recipes__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+}
+@media (min-width: 992px) {
+  .Recipes__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+}
+@media (min-width: 1312px) {
+  .Recipes__grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px 16px;
+  }
+  
+}
+@media (min-width: 1628px) {
+  .Recipes__grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+@media (min-width: 1944px) {
+  .Recipes__grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }

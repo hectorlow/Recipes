@@ -1,0 +1,34 @@
+.RecipeItem {
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+
+  &__time-taken {
+    font-size: 16px;
+    color: #878787;
+  }
+
+  &__ingredients {
+    font-size: 16px;
+  }
+
+  &__author {
+    font-size: 14px;
+    color: #878787;
+    margin-top: 8px;
+  }
+
+  &__star-icon {
+    height: 22px;
+    width: 22px;
+  }
+}

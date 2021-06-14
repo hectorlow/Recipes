@@ -1,15 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import BootstrapTextField from 'components/form/BootstrapTextField';
-import SubmitButton from 'components/form/SubmitButton';
 import './FormTemplate.scss';
 
-const FormTemplate = ({
-  title,
-  formFields,
-  onFormSubmit,
-  submitButtonText,
-}) => {
+const FormTemplate = ({ title, formFields, SubmitButton }) => {
   const renderTextField = (label, value, handleChange) => (
     <div key={label}>
       <div className="FormTemplate__form-label">{label}</div>
@@ -29,7 +23,7 @@ const FormTemplate = ({
           renderTextField(field.label, field.value, field.onChange)
         )}
         <div className="FormTemplate__submit-button">
-          <SubmitButton label={submitButtonText} onClick={onFormSubmit} />
+          <SubmitButton />
         </div>
       </form>
     </div>
@@ -45,8 +39,6 @@ FormTemplate.propTypes = {
       onChange: PropTypes.func,
     })
   ).isRequired,
-  onFormSubmit: PropTypes.func.isRequired,
-  submitButtonText: PropTypes.string.isRequired,
 };
 
 export default FormTemplate;

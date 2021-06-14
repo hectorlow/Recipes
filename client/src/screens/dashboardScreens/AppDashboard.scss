@@ -4,7 +4,7 @@
   height: 100vh;
 
   &__navbar {
-    height: 64px;
+    min-height: 64px;
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -32,7 +32,7 @@
   }
 
   &__content {
-    height: 100%;
+    flex: 1;
     background-color: #FDD90166;
   }
 }

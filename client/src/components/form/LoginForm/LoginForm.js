@@ -1,10 +1,24 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useHistory } from 'react-router-dom';
+import { makeStyles } from '@material-ui/core/styles';
 import FormTemplate from 'components/form/FormTemplate';
+import FormButton from 'components/form/FormButton';
 import './LoginForm.scss';
 
+const useStyles = makeStyles({
+  button: {
+    color: 'white',
+    fontWeight: 700,
+    backgroundColor: '#5A402F',
+    padding: 20,
+    width: 200,
+    borderRadius: 100,
+  },
+});
+
 const LoginForm = () => {
+  const classes = useStyles();
   const history = useHistory();
   const [emailOrUsername, setEmailOrUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -33,12 +47,16 @@ const LoginForm = () => {
     { label: 'Password', value: password, onChange: setPassword },
   ];
 
+  const submitButton = () => (
+    <FormButton label="Login" onClick={handleSubmit} classes={classes.button} />
+  );
+
   return (
     <FormTemplate
       title="Login"
       formFields={formFields}
       onFormSubmit={handleSubmit}
-      submitButtonText="Login"
+      SubmitButton={submitButton}
     />
   );
 };
