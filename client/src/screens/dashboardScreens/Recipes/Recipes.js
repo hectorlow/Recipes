@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import RecipeItem from 'components/UI/RecipeItem';
 import './Recipes.scss';
@@ -14,19 +15,21 @@ const useStyles = makeStyles({
 // breakpoints: 600, 960, 1280, 1920
 
 const Recipes = () => {
+  const [recipes, setRecipes] = useState([]);
+
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_HOST_URL}/api/recipes`).then((res) => {
+      setRecipes(res.data);
+      console.log(res.data, 'recipe res data');
+    });
+  }, []);
+
   const classes = useStyles();
   return (
     <div className="Recipes">
-      {/* <Grid container direction="row" spacing={2}>
-        {[1, 2, 3, 4, 5, 6, 7].map(() => (
-          <Grid item xs className={classes.gridItem}>
-            <RecipeItem />
-          </Grid>
-        ))}
-      </Grid> */}
       <div className="Recipes__grid">
-        {[1, 2, 3, 4, 5, 6, 7].map((item) => (
-          <div key={item.toString()} className={classes.gridItem}>
+        {recipes.map((recipe) => (
+          <div key={recipe.recipe_id} className={classes.gridItem}>
             <RecipeItem />
           </div>
         ))}

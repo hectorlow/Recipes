@@ -1,10 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useHistory } from 'react-router-dom';
 import pizzaIcon from 'images/pizza.png';
 import './Navbar.scss';
 
-const Navbar = ({ routes }) => {
+const Navbar = ({ routes, logout }) => {
+  const history = useHistory();
   const renderNavLink = (label, path) => (
     <NavLink
       key={label}
@@ -22,6 +23,15 @@ const Navbar = ({ routes }) => {
   return (
     <div className="Navbar__container">
       {routes.map((route) => renderNavLink(route.label, route.path))}
+      {logout && (
+        <button
+          type="button"
+          className="Navbar__logout-button Navbar__navlink"
+          onClick={() => history.push('/login')}
+        >
+          Logout
+        </button>
+      )}
     </div>
   );
 };
@@ -33,6 +43,11 @@ Navbar.propTypes = {
       path: PropTypes.string,
     })
   ).isRequired,
+  logout: PropTypes.bool,
+};
+
+Navbar.defaultProps = {
+  logout: false,
 };
 
 export default Navbar;

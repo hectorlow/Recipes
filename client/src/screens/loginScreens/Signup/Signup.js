@@ -1,10 +1,15 @@
 import React from 'react';
 import SignupForm from 'components/form/SignupForm';
-import autumnSoup from 'src/images/autumn_soup.jpg';
-import LoginSignupScreenTemplate from 'components/UI/LoginSignupScreenTemplate';
+import './Signup.scss';
 
-const SignupScreen = () => (
-  <LoginSignupScreenTemplate Form={SignupForm} sideImage={autumnSoup} />
+const Signup = () => (
+  <section className="Signup__form-section">
+    <div className="Signup__loginForm-container">
+      <div className="Signup__loginForm">
+        <SignupForm />
+      </div>
+    </div>
+  </section>
 );
 
-export default SignupScreen;
+export default Signup;

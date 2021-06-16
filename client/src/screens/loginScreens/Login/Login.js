@@ -1,10 +1,15 @@
 import React from 'react';
 import LoginForm from 'components/form/LoginForm';
-import avocadoAndEgg from 'src/images/avocado_and_egg.jpg';
-import LoginSignupScreenTemplate from 'components/UI/LoginSignupScreenTemplate';
+import './Login.scss';
 
-const LoginScreen = () => (
-  <LoginSignupScreenTemplate Form={LoginForm} sideImage={avocadoAndEgg} />
+const Login = () => (
+  <section className="Login__form-section">
+    <div className="Login__loginForm-container">
+      <div className="Login__loginForm">
+        <LoginForm />
+      </div>
+    </div>
+  </section>
 );
 
-export default LoginScreen;
+export default Login;

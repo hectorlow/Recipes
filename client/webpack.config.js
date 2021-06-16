@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const DirectoryNamedWebpackPlugin = require('directory-named-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   // entrypoint of the project
@@ -37,6 +38,7 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, 'src'),
     port: 3000,
+    publicPath: 'http://localhost:3000',
     historyApiFallback: true,
   },
 
@@ -45,6 +47,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'public', 'index.html'),
     }),
+    new Dotenv(),
   ],
 
   // modules describe how to handle imported files

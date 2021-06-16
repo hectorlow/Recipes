@@ -20,8 +20,8 @@ const useStyles = makeStyles({
 const LoginForm = () => {
   const classes = useStyles();
   const history = useHistory();
-  const [emailOrUsername, setEmailOrUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [emailOrUsername, setEmailOrUsername] = useState('hec');
+  const [password, setPassword] = useState('superstrong');
 
   const handleSubmit = () => {
     axios

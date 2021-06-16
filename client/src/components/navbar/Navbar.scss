@@ -12,7 +12,7 @@
     flex-direction: row;
     justify-content: flex-end;
     line-height: 24px;
-    min-width: 100px;
+    min-width: 80px;
     margin-left: 32px;
     text-decoration: none;
     color: #604E40;
@@ -36,5 +36,14 @@
     display: none;
     height: 18px;
     width: 18px;
+  }
+
+  &__logout-button {
+    font-family: Roboto, sans-serif;
+    text-decoration: none;
+    border: 0px;
+    padding: 0px;
+    background-color: transparent;
+    cursor: pointer;
   }
 }
