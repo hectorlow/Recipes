@@ -1,13 +1,15 @@
+from collections import defaultdict
 from mongoengine.fields import StringField
 from server import db
 from werkzeug.security import check_password_hash, generate_password_hash
+import time
 
 class Recipe(db.Document):
   recipe_id = db.StringField( max_length=255, unique=True )
   name = db.StringField( max_length=50 )
   time_taken = db.StringField( max_length=50 )
-  ingredients = db.StringField( max_length=255 )
-  instructions = db.ListField( StringField, default=list )
+  ingredients = db.ListField( StringField(), default=list )
+  instructions = db.ListField( StringField(), default=list )
   author = db.StringField( max_length=50 )
 
 class User(db.Document):

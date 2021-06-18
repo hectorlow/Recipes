@@ -39,6 +39,7 @@ FormTemplate.propTypes = {
       onChange: PropTypes.func,
     })
   ).isRequired,
+  SubmitButton: PropTypes.func.isRequired,
 };
 
 export default FormTemplate;

@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import PropTypes from 'prop-types';
 import { NavLink, useHistory } from 'react-router-dom';
 import pizzaIcon from 'images/pizza.png';
@@ -6,6 +7,23 @@ import './Navbar.scss';
 
 const Navbar = ({ routes, logout }) => {
   const history = useHistory();
+
+  const sendLogoutRequest = () => {
+    axios
+      .post(
+        `${process.env.REACT_APP_HOST_URL}/api/logout`,
+        {},
+        {
+          withCredentials: true,
+        }
+      )
+      .then(() => {
+        localStorage.clear();
+        history.push('/login');
+      })
+      .catch((err) => console.log(err.request.response, 'error logging out'));
+  };
+
   const renderNavLink = (label, path) => (
     <NavLink
       key={label}
@@ -27,7 +45,7 @@ const Navbar = ({ routes, logout }) => {
         <button
           type="button"
           className="Navbar__logout-button Navbar__navlink"
-          onClick={() => history.push('/login')}
+          onClick={() => sendLogoutRequest()}
         >
           Logout
         </button>

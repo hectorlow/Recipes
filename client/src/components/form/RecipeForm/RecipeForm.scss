@@ -1,0 +1,27 @@
+.RecipeForm {
+    &__form-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  
+    &__form-control {
+      margin-top: 16px;
+    }
+  
+    &__form-helper-text {
+      color: #878787;
+      font-size: 14px;
+    }
+  
+    &__form-text-field {
+      margin-top: 16px;
+      padding: 0px;
+    }
+  
+    &__optional-label {
+      font-weight: bold;
+      margin-top: 16px;
+      margin-bottom: -4px;
+    }
+  }
+  

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { Paper } from '@material-ui/core';
 import RecipeItem from 'components/UI/RecipeItem';
-import BootstrapTextField from 'components/form/BootstrapTextField';
-import FormButton from 'components/form/FormButton';
+import ButtonBase from 'components/UI/ButtonBase';
+import RecipeForm from 'components/form/RecipeForm';
 import './AddRecipe.scss';
 
 const useStyles = makeStyles({
@@ -17,9 +18,8 @@ const useStyles = makeStyles({
     justifyContent: 'center',
   },
   addButton: {
-    color: 'white',
-    fontWeight: 700,
-    backgroundColor: '#FFC457',
+    fontWeight: 500,
+    backgroundColor: '#FFA600',
     padding: 12,
     width: 120,
     borderRadius: 100,
@@ -30,51 +30,50 @@ const useStyles = makeStyles({
 });
 
 const AddRecipe = () => {
+  const history = useHistory();
   const classes = useStyles();
   const [name, setName] = useState('');
   const [timeTaken, setTimeTaken] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [instructions, setInstructions] = useState('');
+  const username = localStorage.getItem('username');
 
-  const renderTextField = (label, value, handleChange, placeholder) => (
-    <div key={label} className="AddRecipe__form-control">
-      <div>{label}</div>
-      <BootstrapTextField
-        className="AddRecipe__form-text-field"
-        value={value}
-        onChange={(event) => handleChange(event.target.value)}
-        placeholder={placeholder}
-        fullWidth
-      />
-    </div>
-  );
+  const recipe = {
+    name,
+    time_taken: timeTaken,
+    ingredients: ingredients.split('\n'),
+    instructions: instructions.split('\n'),
+    author: username,
+  };
+
+  const removeEmptyOrBlankInputs = (string) => {
+    // This method splits string by new line and filter
+    // out elements that are empty or only have whitespaces
+    // Returns array
+    return string.split('\n').filter((item) => item.trim() && item.length > 0);
+  };
 
   const handleSaveNew = () => {
-    console.log(instructions, 'instructions');
-    return;
     axios
       .post(
         'http://localhost:5000/api/recipe',
         {
           name,
           time_taken: timeTaken,
-          ingredients,
-          instructions,
+          ingredients: removeEmptyOrBlankInputs(ingredients),
+          instructions: removeEmptyOrBlankInputs(instructions),
         },
         {
-          headers: {
-            Authorization:
-              'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2l' +
-              'kIjoiYzJjNWM5MTktMTRmNi00MmI2LWFkYzYtMTlhOWZlY2ZhMjA1IiwiZXh' +
-              'wIjoxNjIzNjg5MzkxfQ.zgE7xsKIN3GFRmsIjWHw0P0KxHZreIIdDy0_mpnBYzk',
-          },
+          withCredentials: true,
         }
       )
-      .then((response) => {
-        console.log(response.data, 'Recipe added');
+      .then((res) => {
+        history.push(`/recipes/{recipeCreated.name}`, {
+          recipe: res.data,
+          recipeAdded: true,
+        });
       })
       .catch((error) => {
-        console.log(error, 'what is happening');
         console.log(error.request.response, 'error adding recipe');
       });
   };
@@ -84,61 +83,24 @@ const AddRecipe = () => {
       <Paper elevation={0} className="AddRecipe__paper">
         <div className="AddRecipe__grid-container">
           <div className="AddRecipe__grid-item">
-            <form>
-              <div className="AddRecipe__form-title">Recipe</div>
-              {renderTextField('Name', name, setName)}
-              {renderTextField(
-                'Time taken',
-                timeTaken,
-                setTimeTaken,
-                'E.g. 30 minutes'
-              )}
-              <div className="AddRecipe__form-control">
-                <div>
-                  Ingredients
-                  <span className="AddRecipe__form-helper-text">
-                    {' '}
-                    (add each ingredient on a new line)
-                  </span>
-                </div>
-                <BootstrapTextField
-                  className="AddRecipe__form-text-field"
-                  classes={{ root: classes.multiline }}
-                  value={ingredients}
-                  onChange={(event) => setIngredients(event.target.value)}
-                  multiline
-                  rows={3}
-                  fullWidth
-                />
-              </div>
-              <div className="AddRecipe__optional-label">Optional</div>
-              <div className="AddRecipe__form-control">
-                <div>
-                  Instructions
-                  <span className="AddRecipe__form-helper-text">
-                    {' '}
-                    (add each instruction on a new line)
-                  </span>
-                </div>
-                <BootstrapTextField
-                  className="AddRecipe__form-text-field"
-                  classes={{ root: classes.multiline }}
-                  value={instructions}
-                  onChange={(event) => setInstructions(event.target.value)}
-                  multiline
-                  rows={3}
-                  fullWidth
-                />
-              </div>
-            </form>
+            <RecipeForm
+              name={name}
+              setName={setName}
+              timeTaken={timeTaken}
+              setTimeTaken={setTimeTaken}
+              ingredients={ingredients}
+              setIngredients={setIngredients}
+              instructions={instructions}
+              setInstructions={setInstructions}
+            />
           </div>
           <div className="AddRecipe__grid-item">
-            <RecipeItem />
+            <RecipeItem recipe={recipe} />
           </div>
         </div>
 
         <div className="AddRecipe__action-buttons">
-          <FormButton
+          <ButtonBase
             label="Add recipe"
             classes={classes.addButton}
             onClick={handleSaveNew}

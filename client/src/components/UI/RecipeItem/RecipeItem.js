@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Card,
   CardActionArea,
   CardMedia,
   CardContent,
-  IconButton,
 } from '@material-ui/core';
-import starOutline from 'images/star_checked.png';
-import starFilled from 'images/star_unchecked.png';
+import StarToggle from 'components/UI/StarToggle';
 import penangLaksa from 'images/penang_laksa.jpg';
 import './RecipeItem.scss';
 
@@ -30,36 +30,67 @@ const useStyles = makeStyles({
   },
 });
 
-const RecipeItem = () => {
+const RecipeItem = ({ recipe, disableClick, hideStar }) => {
   const classes = useStyles();
+  const history = useHistory();
   const [star, setStar] = useState(false);
+
   const toggleStar = () => setStar(!star);
+
+  const recipeName = recipe.name;
+  const timeTaken = recipe.time_taken;
+  const { ingredients, author } = recipe;
+
+  // e.g. Spicy chicken noodle becomes Spicy-chicken-noodle
+  const recipeUrl = recipeName.split(' ').join('-');
+
   return (
     <Card className={classes.card}>
-      <CardActionArea>
+      <CardActionArea
+        onClick={() => {
+          if (!disableClick) {
+            const currentPath = history.location.pathname;
+            history.push(`${currentPath}/${recipeUrl}`, { recipe });
+          }
+        }}
+      >
         <CardMedia className={classes.media} image={penangLaksa} />
       </CardActionArea>
       <CardContent className={classes.cardContent}>
         <div className="RecipeItem__text">
           <div>
-            <span className="RecipeItem__title">Penang Laksa</span>
-            <span className="RecipeItem__time-taken">30 minutes</span>
+            <span className="RecipeItem__title">{recipeName}</span>
+            <span className="RecipeItem__time-taken">{timeTaken}</span>
           </div>
           <div className="RecipeItem__ingredients">
-            Yellow noodle, coconut milk
+            {ingredients.join(', ')}
           </div>
-          <div className="RecipeItem__author">By Singaporean</div>
+          <div className="RecipeItem__author">By {author}</div>
         </div>
-        <IconButton className={classes.iconButton} onClick={toggleStar}>
-          <img
-            src={star ? starFilled : starOutline}
-            alt=""
-            className="RecipeItem__star-icon"
-          />
-        </IconButton>
+        {!hideStar && <StarToggle value={star} onToggle={toggleStar} />}
       </CardContent>
     </Card>
   );
+};
+
+RecipeItem.propTypes = {
+  recipe: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    time_taken: PropTypes.string.isRequired,
+    ingredients: PropTypes.arrayOf(PropTypes.string).isRequired,
+    instructions: PropTypes.arrayOf(PropTypes.string).isRequired,
+    author: PropTypes.string,
+  }),
+  disableClick: PropTypes.bool,
+  hideStar: PropTypes.bool,
+};
+
+RecipeItem.defaultProps = {
+  recipe: {
+    author: 'Anonymous',
+  },
+  disableClick: false,
+  hideStar: false,
 };
 
 export default RecipeItem;

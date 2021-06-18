@@ -1,5 +1,5 @@
 .AppLogin {
-  &__grid-item {
+  &__grid-image {
     height: 100vh;
   }
 
@@ -22,15 +22,15 @@
     padding: 32px;
   }
 
-  &__loginForm {
-    width: 80%;
-  }
-
-  &__loginForm-container {
-    height: 100%;
+  // styles for preview screens
+  &__preview {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    height: 100%;
+  }
+
+  &__preview-content {
+    flex: 1;
+    background-color: #FDD90166;
   }
 }

@@ -1,50 +1,63 @@
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import FormTemplate from 'components/form/FormTemplate';
-import FormButton from 'components/form/FormButton';
+import ButtonBase from 'components/UI/ButtonBase';
 import './SignupForm.scss';
 
 const useStyles = makeStyles({
   button: {
-    color: 'white',
-    fontWeight: 700,
+    fontSize: 16,
     backgroundColor: '#FFA600',
-    padding: 20,
-    width: 200,
+    padding: 16,
+    width: 160,
     borderRadius: 100,
   },
 });
 
 const SignupForm = () => {
+  const history = useHistory();
   const classes = useStyles();
   const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = () => {
+    // validate inputs first
+    if (username.length < 0) {
+      alert('Username cannot be empty');
+      return;
+    }
+    if (password.length < 8) {
+      alert('Please choose a password of at least 8 characters');
+      return;
+    }
+
     axios
       .post('http://localhost:5000/api/signup', {
         username,
-        email,
         password,
       })
-      .then((response) => {
-        console.log(response.data, 'signup response');
+      .then(() => {
+        history.push('/login', { newUser: true });
       })
-      .catch((error) => {
-        console.log(error.request.response, 'error response');
+      .catch((err) => {
+        alert(err.request.response);
+        console.log(err.request.response, 'error response');
       });
   };
 
   const formFields = [
     { label: 'Username', value: username, onChange: setUsername },
-    { label: 'Email', value: email, onChange: setEmail },
     { label: 'Password', value: password, onChange: setPassword },
   ];
 
   const submitButton = () => (
-    <FormButton label="Login" onClick={handleSubmit} classes={classes.button} />
+    <ButtonBase
+      label="Register"
+      onClick={handleSubmit}
+      classes={classes.button}
+    />
   );
 
   return (

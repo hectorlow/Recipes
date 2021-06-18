@@ -3,16 +3,15 @@ import axios from 'axios';
 import { useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import FormTemplate from 'components/form/FormTemplate';
-import FormButton from 'components/form/FormButton';
+import ButtonBase from 'components/UI/ButtonBase';
 import './LoginForm.scss';
 
 const useStyles = makeStyles({
   button: {
-    color: 'white',
-    fontWeight: 700,
+    fontSize: 16,
     backgroundColor: '#5A402F',
-    padding: 20,
-    width: 200,
+    padding: 16,
+    width: 160,
     borderRadius: 100,
   },
 });
@@ -20,35 +19,42 @@ const useStyles = makeStyles({
 const LoginForm = () => {
   const classes = useStyles();
   const history = useHistory();
-  const [emailOrUsername, setEmailOrUsername] = useState('hec');
+  const [username, setUsername] = useState('hec2');
   const [password, setPassword] = useState('superstrong');
 
   const handleSubmit = () => {
     axios
-      .post('http://localhost:5000/api/login', {
-        username: emailOrUsername,
-        password,
-      })
-      .then((response) => {
-        console.log(response.data, 'login response data');
+      .post(
+        'http://localhost:5000/api/login',
+        {
+          username,
+          password,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        localStorage.setItem('username', res.data.username);
         history.push('/recipes');
       })
       .catch((error) => {
+        alert(error.request.response);
         console.log(error.request.response, 'error response');
       });
   };
 
   const formFields = [
     {
-      label: 'Email or Username',
-      value: emailOrUsername,
-      onChange: setEmailOrUsername,
+      label: 'Username',
+      value: username,
+      onChange: setUsername,
     },
     { label: 'Password', value: password, onChange: setPassword },
   ];
 
   const submitButton = () => (
-    <FormButton label="Login" onClick={handleSubmit} classes={classes.button} />
+    <ButtonBase label="Login" onClick={handleSubmit} classes={classes.button} />
   );
 
   return (
