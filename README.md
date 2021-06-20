@@ -1,5 +1,13 @@
 # Recipes
 Web application to store recipes online
 
-frontend - React  
-backend - Flask
+Frontend - React  
+- Webpack  
+- Babel  
+- Axios  
+- Material UI  
+- Mobile responsive
+
+Backend - Flask   
+- MongoDB with MongoEngine
+- JWT
