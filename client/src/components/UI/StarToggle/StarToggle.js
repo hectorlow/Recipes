@@ -2,8 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import { IconButton } from '@material-ui/core';
-import starOutline from 'images/star_checked.png';
-import starFilled from 'images/star_unchecked.png';
+import starChecked from 'images/star_checked.png';
+import starUnchecked from 'images/star_unchecked.png';
 
 const useStyles = makeStyles({
   card: {
@@ -28,7 +28,7 @@ const StarToggle = ({ value, onToggle }) => {
   return (
     <IconButton className={classes.iconButton} onClick={onToggle}>
       <img
-        src={value ? starFilled : starOutline}
+        src={value ? starChecked : starUnchecked}
         alt=""
         className="RecipeItem__star-icon"
       />
@@ -37,8 +37,12 @@ const StarToggle = ({ value, onToggle }) => {
 };
 
 StarToggle.propTypes = {
-  value: PropTypes.bool.isRequired,
+  value: PropTypes.bool,
   onToggle: PropTypes.func.isRequired,
 };
+
+StarToggle.defaultProps = {
+  value: false,
+}
 
 export default StarToggle;

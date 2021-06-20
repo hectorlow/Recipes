@@ -29,6 +29,10 @@
     line-height: 40px;
     text-decoration: none;
     text-align: center;
+
+    &--active {
+      background-color: #8080801A;
+    }
   }
 
   &__logout-btn {

@@ -36,6 +36,7 @@ const AddRecipe = () => {
   const [timeTaken, setTimeTaken] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [instructions, setInstructions] = useState('');
+  const [servingSize, setServingSize] = useState(1);
   const username = localStorage.getItem('username');
 
   const recipe = {
@@ -92,10 +93,12 @@ const AddRecipe = () => {
               setIngredients={setIngredients}
               instructions={instructions}
               setInstructions={setInstructions}
+              servingSize={servingSize}
+              setServingSize={setServingSize}
             />
           </div>
           <div className="AddRecipe__grid-item">
-            <RecipeItem recipe={recipe} />
+            <RecipeItem recipe={recipe} hideStar />
           </div>
         </div>
 

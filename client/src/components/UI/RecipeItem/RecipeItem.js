@@ -11,6 +11,7 @@ import {
 import StarToggle from 'components/UI/StarToggle';
 import penangLaksa from 'images/penang_laksa.jpg';
 import './RecipeItem.scss';
+import axios from 'axios';
 
 const useStyles = makeStyles({
   card: {
@@ -33,9 +34,26 @@ const useStyles = makeStyles({
 const RecipeItem = ({ recipe, disableClick, hideStar }) => {
   const classes = useStyles();
   const history = useHistory();
-  const [star, setStar] = useState(false);
+  const [star, setStar] = useState(recipe.favourite);
 
-  const toggleStar = () => setStar(!star);
+  const toggleStar = () => {
+    axios
+      .post(
+        `${process.env.REACT_APP_HOST_URL}/api/favourites`,
+        {
+          recipe_id: recipe.recipe_id,
+          favourite: !star,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        setStar(!star);
+        console.log(res.data);
+      })
+      .catch((err) => console.log(err.request.response));
+  };
 
   const recipeName = recipe.name;
   const timeTaken = recipe.time_taken;
@@ -75,11 +93,13 @@ const RecipeItem = ({ recipe, disableClick, hideStar }) => {
 
 RecipeItem.propTypes = {
   recipe: PropTypes.shape({
+    recipe_id: PropTypes.string,
     name: PropTypes.string.isRequired,
     time_taken: PropTypes.string.isRequired,
     ingredients: PropTypes.arrayOf(PropTypes.string).isRequired,
     instructions: PropTypes.arrayOf(PropTypes.string).isRequired,
     author: PropTypes.string,
+    favourite: PropTypes.bool,
   }),
   disableClick: PropTypes.bool,
   hideStar: PropTypes.bool,
@@ -87,7 +107,9 @@ RecipeItem.propTypes = {
 
 RecipeItem.defaultProps = {
   recipe: {
+    recipe_id: null,
     author: 'Anonymous',
+    favourite: false,
   },
   disableClick: false,
   hideStar: false,

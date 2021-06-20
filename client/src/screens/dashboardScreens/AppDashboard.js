@@ -26,7 +26,11 @@ const routes = [
 const AppDashboard = () => {
   const history = useHistory();
   const [menu, setMenu] = useState(false);
-  const [screenName, setScreenName] = useState('Recipes');
+
+  // set initial screen name to current route base on path name
+  const [screenName, setScreenName] = useState(
+    routes.find((route) => history.location.pathname.includes(route.path)).label
+  );
   const closeMenu = () => setMenu(false);
 
   const closeMenuAndSetScreenName = (name) => {
@@ -39,6 +43,7 @@ const AppDashboard = () => {
       key={to}
       to={to}
       className="AppDashboard__drawer-navlink"
+      activeClassName="AppDashboard__drawer-navlink--active"
       onClick={() => closeMenuAndSetScreenName(label)}
     >
       {label}

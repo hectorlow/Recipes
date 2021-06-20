@@ -1,0 +1,48 @@
+.Profile {
+  // display: flex;
+  // flex-direction: column;
+  padding: 16px;
+
+  &__paper {
+    margin: auto;
+    max-width: 400px;
+    padding: 20px;
+  }
+
+  &__header {
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  &__field-label {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    margin-bottom: 4px;
+  }
+
+  &__field-value {
+    font-size: 16px;
+    margin-left: 0px;
+    font-weight: lighter;
+    color: #63ce00;
+    // color: rgba($color: #4ece2e, $alpha: 1.0);
+  }
+
+  &__form-label {
+    margin-top: 16px;
+  }
+
+  &__form-text-field {
+    margin-top: 16px;
+  }
+
+  &__action-btns {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 16px;
+  }
+}

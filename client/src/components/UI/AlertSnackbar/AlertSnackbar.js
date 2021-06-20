@@ -9,7 +9,7 @@ const AlertSnackbar = ({ open, onClose, message }) => {
       open={open}
       message={message}
       onClose={onClose}
-      autoHideDuration={500}
+      autoHideDuration={1000}
     />
   );
 };

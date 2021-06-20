@@ -10,7 +10,7 @@ from functools import wraps
 
 from werkzeug.wrappers import response
 from server import app
-from .models import User, Recipe
+from .models import Favourite, User, Recipe
 
 login_signup_kwargs = {
   "origins": "http://localhost:3000",
@@ -60,7 +60,7 @@ def login():
     }, app.config["SECRET_KEY"], algorithm="HS256")
 
     resp = make_response(jsonify({ "username": username }), 200)
-    resp.set_cookie("jwt", value=token, max_age=60*30, httponly=True, secure=True)
+    resp.set_cookie("jwt", value=token, max_age=60*60, httponly=True, secure=True)
     return resp
   return make_response("Something went wrong!", 500)
 
@@ -93,8 +93,59 @@ def signup():
 
   
 @app.route('/api/recipes', methods=["GET"])
-@cross_origin(**login_signup_kwargs)
+@cross_origin(**login_signup_kwargs, supports_credentials=True)
 def recipes():
+  # i need to return an aggregation of recipes and if the recipe is favourited
+  # by the current user
+  if request.cookies.get('jwt'):
+    token = request.cookies.get('jwt')
+    token_payload = jwt.decode(token, app.config["SECRET_KEY"], algorithms="HS256")
+    current_user = User.objects(user_id=token_payload["user_id"]).first()
+
+    if not current_user:
+      return make_response("Invalid token", 403)
+    
+    recipes = list(Recipe.objects().aggregate(*[
+      {
+          '$lookup': {
+              'from': 'favourite', 
+              'localField': 'recipe_id', 
+              'foreignField': 'recipe_id', 
+              'as': 'favourite'
+          }
+      }, {
+          '$project': {
+              'recipe_id': 1, 
+              'name': 1, 
+              'time_taken': 1, 
+              'ingredients': 1, 
+              'instructions': 1,
+              'author': 1,
+              'favourite': {
+                  '$reduce': {
+                      'input': '$favourite', 
+                      'initialValue': False, 
+                      'in': {
+                          '$or': [
+                              '$$value', {
+                                  '$eq': [
+                                      '$$this.user_id',
+                                      current_user.user_id
+                                  ]
+                              }
+                          ]
+                      }
+                  }
+              }
+          }
+      }, {
+          '$project': {
+              '_id': 0
+          }
+      }
+    ]))
+    return make_response(jsonify(recipes), 200)
+
   recipes = Recipe.objects.all()
   return make_response(jsonify(recipes), 200)
 
@@ -146,11 +197,91 @@ def add_recipe(current_user):
     return make_response(f"{name} recipe updated", 204)
 
 
+@app.route('/api/favourites', methods=["GET", "POST"])
+@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@token_required
+def favourite(current_user):
+
+  # return list of favourite recipes of current user
+  if request.method == "GET":
+    # aggregation returns list of favourite recipes with index "fav_index"
+    favourites = list( User.objects().aggregate(*[
+        {
+            '$lookup': {
+                'from': 'favourite', 
+                'localField': 'user_id', 
+                'foreignField': 'user_id', 
+                'as': 'fav_pair'
+            }
+        }, {
+            '$unwind': {
+                'path': '$fav_pair', 
+                'preserveNullAndEmptyArrays': False
+            }
+        }, {
+            '$lookup': {
+                'from': 'recipe', 
+                'localField': 'fav_pair.recipe_id', 
+                'foreignField': 'recipe_id', 
+                'as': 'fav_recipe'
+            }
+        }, {
+            '$unwind': {
+                'path': '$fav_recipe', 
+                'preserveNullAndEmptyArrays': False
+            }
+        }, {
+            '$match': {
+                'user_id': current_user.user_id
+            }
+        }, {
+            '$project': {
+                'recipe_id': '$fav_recipe.recipe_id', 
+                'name': '$fav_recipe.name', 
+                'time_taken': '$fav_recipe.time_taken', 
+                'ingredients': '$fav_recipe.ingredients', 
+                'instructions': '$fav_recipe.instructions', 
+                'author': '$fav_recipe.author', 
+                # to allow React frontend to receive true value properly
+                # if 'favourite': True is set manually, React doesn't receive
+                # the favourite property at all 
+                'favourite': {
+                    '$eq': [
+                        '1', '1'
+                    ]
+                }
+            }
+        }, {
+            '$project': {
+                '_id': 0
+            }
+        }
+    ]))
+    return make_response(jsonify(favourites), 200)
+
+  # add or remove favourite recipe for current user
+  if request.method == "POST":
+    recipe_id = request.json.get('recipe_id')
+    user_id = current_user.user_id
+    set_as_favourite = request.json.get('favourite')
+
+    if set_as_favourite:
+      if Favourite.objects(recipe_id=recipe_id, user_id=user_id).first():
+        return make_response("Favourite already exist", 400)
+
+      Favourite(recipe_id=recipe_id, user_id=user_id).save()
+      return make_response("Favourite created", 201)
+    
+    # remove favourite
+    favourite = Favourite.objects(recipe_id=recipe_id, user_id=user_id).first()
+    favourite.delete()
+    return make_response("Favourite removed", 201)
+
+
 @app.route('/api/logout', methods=["POST"])
 @cross_origin(**login_signup_kwargs, supports_credentials=True)
 @token_required
 def logout(current_user):
-  print("logout endpoint")
   resp = make_response("Logout successfully", 204)
   resp.set_cookie("jwt", 'expired', max_age=0)
   return resp
@@ -161,5 +292,33 @@ def logout(current_user):
 @cross_origin(**login_signup_kwargs)
 def cookie():
   resp = make_response("Setting cookie", 200)
-  resp.set_cookie("server", value="server set cookie", max_age=360, domain=".app.localhost")
+  resp.set_cookie("server", value="server set cookie", max_age=60, domain=".app.localhost")
   return resp
+
+
+@app.route('/api/username-change', methods=["POST"])
+@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@token_required
+def change_username(current_user):
+  new_username = request.json.get('username')
+  check_existing_user = User.objects(username=new_username).first()
+  if check_existing_user:
+    return make_response("Username already taken. Try a different one!", 409)
+
+  current_user.username = new_username
+  current_user.save()
+  return make_response("Username changed", 201)
+
+
+@app.route('/api/password-change', methods=["POST"])
+@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@token_required
+def change_password(current_user):
+  old_password = request.json.get('old_password')
+  new_password = request.json.get('new_password')
+  if not current_user.verify_password(old_password):
+    return make_response("Incorrect password", 403)
+
+  current_user.set_password(new_password)
+  current_user.save()
+  return make_response("Password changed", 201)

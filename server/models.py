@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import time
 
 class Recipe(db.Document):
-  recipe_id = db.StringField( max_length=255, unique=True )
+  recipe_id = db.StringField( max_length=36, unique=True )
   name = db.StringField( max_length=50 )
   time_taken = db.StringField( max_length=50 )
   ingredients = db.ListField( StringField(), default=list )
@@ -26,4 +26,5 @@ class User(db.Document):
 
 
 class Favourite(db.Document):
-  favourite_id = db.IntField( unique=True )
+  user_id = db.StringField( max_length=36 )
+  recipe_id = db.StringField( max_length=36 )

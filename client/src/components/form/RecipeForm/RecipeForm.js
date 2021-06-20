@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+import { Slider } from '@material-ui/core';
 import BootstrapTextField from 'components/form/BootstrapTextField';
 import './RecipeForm.scss';
 
@@ -19,6 +20,8 @@ const RecipeForm = ({
   setIngredients,
   instructions,
   setInstructions,
+  servingSize,
+  setServingSize,
 }) => {
   const classes = useStyles();
 
@@ -64,6 +67,24 @@ const RecipeForm = ({
           fullWidth
         />
       </div>
+      <div className="RecipeForm__form-control">
+        <div>
+          Serving size: {servingSize}
+          <span className="RecipeForm__form-helper-text">
+            {' '}
+            {/* (add each ingredient on a new line) */}
+          </span>
+        </div>
+        <div className="RecipeForm__serving-size-slider">
+          <Slider
+            value={servingSize}
+            onChange={(event, newValue) => setServingSize(newValue)}
+            aria-labelledby="input-slider"
+            min={1}
+            max={10}
+          />
+        </div>
+      </div>
       <div className="RecipeForm__optional-label">Optional</div>
       <div className="RecipeForm__form-control">
         <div>
@@ -96,6 +117,8 @@ RecipeForm.propTypes = {
   setIngredients: PropTypes.func.isRequired,
   instructions: PropTypes.string.isRequired,
   setInstructions: PropTypes.func.isRequired,
+  servingSize: PropTypes.number.isRequired,
+  setServingSize: PropTypes.func.isRequired,
 };
 
 export default RecipeForm;

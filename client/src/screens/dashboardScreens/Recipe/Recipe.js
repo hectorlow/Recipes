@@ -33,7 +33,7 @@ const Recipe = ({ location }) => {
   const classes = useStyles();
   const { recipe, recipeAdded } = location.state;
   const username = localStorage.getItem('username');
-  const [star, setStar] = useState(false);
+  const [star, setStar] = useState(recipe.favourite);
   const [editMode, setEditMode] = useState(false);
   const [saveRecipeSnackbar, setSaveRecipeSnackbar] = useState(false);
   const [addRecipeSnackbar, setAddRecipeSnackbar] = useState(recipeAdded);
@@ -47,8 +47,22 @@ const Recipe = ({ location }) => {
   const { author } = recipe;
 
   const handleToggle = () => {
-    // TODO send axios request to set as favourite also
-    setStar(!star);
+    axios
+      .post(
+        `${process.env.REACT_APP_HOST_URL}/api/favourites`,
+        {
+          recipe_id: recipe.recipe_id,
+          favourite: !star,
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
+        setStar(!star);
+        console.log(res.data);
+      })
+      .catch((err) => console.log(err.request.response));
   };
 
   // View recipe button functions
@@ -220,6 +234,7 @@ Recipe.propTypes = {
         ingredients: PropTypes.arrayOf(PropTypes.string),
         instructions: PropTypes.arrayOf(PropTypes.string),
         author: PropTypes.string,
+        favourite: PropTypes.bool,
       }).isRequired,
       recipeAdded: PropTypes.bool,
     }),

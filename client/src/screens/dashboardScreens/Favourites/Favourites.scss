@@ -1,11 +1,10 @@
-.Recipes {
-  padding: 8px 24px 24px 24px;
+.Favourites {
+  padding: 24px;
 
   &__grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 16px;
-    margin-top: 16px;
   }
 
   &__grid-item {
@@ -13,39 +12,35 @@
     flex-direction: row;
     justify-content: center;
   }
-
-  &__filter-btn-container {
-    width: 300px;
-  }
 }
 
 
 @media (min-width: 680px) {
-  .Recipes__grid {
+  .Favourites__grid {
     grid-template-columns: 1fr 1fr;
   }
   
 }
 @media (min-width: 992px) {
-  .Recipes__grid {
+  .Favourites__grid {
     grid-template-columns: repeat(3, 1fr);
   }
   
 }
 @media (min-width: 1312px) {
-  .Recipes__grid {
+  .Favourites__grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 32px 16px;
   }
   
 }
 @media (min-width: 1628px) {
-  .Recipes__grid {
+  .Favourites__grid {
     grid-template-columns: repeat(5, 1fr);
   }
 }
 @media (min-width: 1944px) {
-  .Recipes__grid {
+  .Favourites__grid {
     grid-template-columns: repeat(6, 1fr);
   }
 }
