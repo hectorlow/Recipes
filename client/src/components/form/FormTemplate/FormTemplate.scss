@@ -1,7 +1,22 @@
 .FormTemplate {
   &__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     font-weight: 800;
     font-size: 44px;
+  }
+
+  &__app-icon {
+    margin-left: 12px;
+    height: 48px;
+    width: 48px;
+  }
+
+  &__subtext {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #87878799;
   }
 
   &__form {

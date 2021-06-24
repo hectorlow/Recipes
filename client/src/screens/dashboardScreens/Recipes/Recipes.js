@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
@@ -6,6 +7,7 @@ import { Button } from '@material-ui/core';
 import SearchBar from 'material-ui-search-bar';
 import RecipeItem from 'components/UI/RecipeItem';
 import AlertSnackbar from 'components/UI/AlertSnackbar';
+import { redirectToLogin } from 'src/utils';
 import './Recipes.scss';
 
 const useStyles = makeStyles({
@@ -17,6 +19,7 @@ const useStyles = makeStyles({
 });
 
 const Recipes = ({ location }) => {
+  const history = useHistory();
   const classes = useStyles();
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
@@ -32,6 +35,9 @@ const Recipes = ({ location }) => {
       .then((res) => {
         setRecipes(res.data);
         setFilteredRecipes(res.data);
+      })
+      .catch((err) => {
+        redirectToLogin(err.request.response, history);
       });
 
     // check if location, location.state exists, then check if recipeDeleted
@@ -66,7 +72,7 @@ const Recipes = ({ location }) => {
     // this for loop returns true if search string in any ingredient
     // returns false otherwse
     for (let i = 0; i < ingredients.length; i += 1) {
-      if (ingredients[i].toLowerCase().includes(search)) {
+      if (ingredients[i].name.toLowerCase().includes(search)) {
         return true;
       }
     }

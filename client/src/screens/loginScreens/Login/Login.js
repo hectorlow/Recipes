@@ -6,10 +6,19 @@ import './Login.scss';
 
 const Login = ({ location }) => {
   const [newUsernackbar, setNewUserSnackbar] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState('');
 
   useEffect(() => {
-    if (location.state && 'newUser' in location.state) {
-      setNewUserSnackbar(true);
+    if (location.state) {
+      if ('newUser' in location.state) {
+        setNewUserSnackbar(true);
+        setSnackbarMsg('Account created! Login to continue');
+      }
+
+      if ('sessionExpired' in location.state) {
+        setNewUserSnackbar(true);
+        setSnackbarMsg('Session expired. Login to continue');
+      }
     }
   }, []);
 
@@ -17,7 +26,7 @@ const Login = ({ location }) => {
     <section className="Login__form-section">
       <AlertSnackbar
         open={newUsernackbar}
-        message="Account created! Login to continue"
+        message={snackbarMsg}
         onClose={() => setNewUserSnackbar(false)}
       />
       <div className="Login__loginForm-container">

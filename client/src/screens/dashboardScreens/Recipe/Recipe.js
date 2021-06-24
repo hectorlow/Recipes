@@ -1,16 +1,23 @@
+/* eslint-disable max-lines */
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
-import { Paper, IconButton } from '@material-ui/core';
+import { Paper, IconButton, Slider } from '@material-ui/core';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import RecipeForm from 'components/form/RecipeForm';
 import ButtonBase from 'components/UI/ButtonBase';
 import RecipeItem from 'components/UI/RecipeItem';
 import StarToggle from 'components/UI/StarToggle';
 import AlertSnackbar from 'components/UI/AlertSnackbar';
+import {
+  redirectToLogin,
+  validateRecipeForm,
+  amendIngredients,
+  removeBlankInstructions,
+} from 'src/utils';
+import EditRecipe from './EditRecipe';
 import './Recipe.scss';
 
 const useStyles = makeStyles({
@@ -20,10 +27,10 @@ const useStyles = makeStyles({
     width: 108,
     borderRadius: 100,
   },
-  editBtn: {
+  primaryBtn: {
     backgroundColor: '#FFA600',
   },
-  deleteBtn: {
+  secondaryBtn: {
     backgroundColor: '#5A402F',
   },
 });
@@ -32,21 +39,44 @@ const Recipe = ({ location }) => {
   const history = useHistory();
   const classes = useStyles();
   const { recipe, recipeAdded } = location.state;
+
   const username = localStorage.getItem('username');
   const [star, setStar] = useState(recipe.favourite);
   const [editMode, setEditMode] = useState(false);
   const [saveRecipeSnackbar, setSaveRecipeSnackbar] = useState(false);
   const [addRecipeSnackbar, setAddRecipeSnackbar] = useState(recipeAdded);
-
-  const [name, setName] = useState(recipe.name);
-  const [timeTaken, setTimeTaken] = useState(recipe.time_taken);
-  const [ingredients, setIngredients] = useState(recipe.ingredients.join('\n'));
-  const [instructions, setInstructions] = useState(
-    recipe.instructions.join('\n')
+  const [sliderServingSize, setSliderServingSize] = useState(
+    recipe.serving_size
   );
-  const { author } = recipe;
 
-  const handleToggle = () => {
+  const [curRecipe, setCurRecipe] = useState({
+    recipeId: recipe.recipe_id,
+    name: recipe.name,
+    timeTaken: recipe.time_taken,
+    ingredients: recipe.ingredients,
+    servingSize: recipe.serving_size,
+    instructionsArray: recipe.instructions,
+    instructions: recipe.instructions.join('\n'),
+    author: recipe.author,
+    image: recipe.image,
+  });
+  const {
+    name,
+    timeTaken,
+    ingredients,
+    instructions,
+    servingSize,
+    author,
+    instructionsArray,
+  } = curRecipe;
+
+  const handleToggleFavourite = () => {
+    if (!username) {
+      // no username means user is not logged in
+      setStar(!star);
+      return;
+    }
+
     axios
       .post(
         `${process.env.REACT_APP_HOST_URL}/api/favourites`,
@@ -62,13 +92,13 @@ const Recipe = ({ location }) => {
         setStar(!star);
         console.log(res.data);
       })
-      .catch((err) => console.log(err.request.response));
+      .catch((err) => {
+        console.log(err.request.response);
+        redirectToLogin(err.request.response, history);
+      });
   };
 
-  // View recipe button functions
-  const handleEdit = () => setEditMode(true);
-
-  const handleDelete = () => {
+  const handleDeleteRecipe = () => {
     axios
       .delete(`${process.env.REACT_APP_HOST_URL}/api/recipe`, {
         withCredentials: true,
@@ -77,91 +107,158 @@ const Recipe = ({ location }) => {
       .then(() => {
         history.push('/recipes', { recipeDeleted: true });
       })
-      .catch((err) => console.log(err.request.response));
+      .catch((err) => {
+        console.log(err.request.response);
+        redirectToLogin(err.request.response, history);
+      });
   };
 
-  const removeEmptyOrBlankInputs = (string) => {
-    // This method splits string by new line and filter
-    // out elements that are empty or only have whitespaces
-    // Returns array
-    return string.split('\n').filter((item) => item.trim() && item.length > 0);
+  const renderRecipeDetails = () => {
+    return (
+      <div className="Recipe__grid-item">
+        <div className="Recipe__title">
+          <div>{name}</div>
+          <StarToggle value={star} onToggle={handleToggleFavourite} />
+        </div>
+
+        <section className="Recipe__author-and-time-taken">
+          <div className="Recipe__author">By {author}</div>
+          <div className="Recipe__time-taken">{timeTaken}</div>
+        </section>
+
+        <div className="Recipe__section">
+          <div className="Recipe__header">Ingredients</div>
+          {recipe.ingredients.length === 0 && (
+            <div className="Recipe__no-items-list">*No listed ingredients</div>
+          )}
+          <ul className="Recipe__list-elements">
+            {ingredients.map((item) => (
+              <li key={item.id}>
+                <div className="Recipe__ingredient">
+                  <span>{item.name}</span>
+                  {item.quantity > 0 && (
+                    <span className="Recipe__ingredient__qty-unit">
+                      {/* Make ingredient quantity dynamic based on serving
+                      size slider, and round up to maximum of 2 decimals */}
+                      {Math.round(
+                        (item.quantity * sliderServingSize * 100) / servingSize
+                      ) / 100}{' '}
+                      {item.unit}
+                    </span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {/* render serving size and slider for recipe */}
+          <div className="RecipeForm__form-control">
+            <div>Serving size: {sliderServingSize}</div>
+            <div className="RecipeForm__serving-size-slider">
+              <Slider
+                value={sliderServingSize}
+                onChange={(event, newValue) => setSliderServingSize(newValue)}
+                aria-labelledby="input-slider"
+                min={1}
+                max={10}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="Recipe__section">
+          <div className="Recipe__header">Instructions</div>
+          {instructions.length === 0 && (
+            <div className="Recipe__no-items-list">*No listed instructions</div>
+          )}
+          <ol className="Recipe__list-elements">
+            {instructionsArray.map((item, index) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <li key={index}>{item}</li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    );
   };
 
-  // Edit recipe button functions
-  const handleSave = () => {
-    const editedRecipe = {
-      recipe_id: recipe.recipe_id,
-      name,
-      time_taken: timeTaken,
-      ingredients: removeEmptyOrBlankInputs(ingredients),
-      instructions: removeEmptyOrBlankInputs(instructions),
-    };
+  const handleSaveChanges = (imgUpload) => {
+    if (!validateRecipeForm(name, timeTaken, ingredients)) return;
+
     axios
-      .patch(`${process.env.REACT_APP_HOST_URL}/api/recipe`, editedRecipe, {
-        withCredentials: true,
-      })
-      .then(() => {
+      .patch(
+        `${process.env.REACT_APP_HOST_URL}/api/recipe`,
+        {
+          recipe_id: recipe.recipe_id,
+          name,
+          time_taken: timeTaken,
+          ingredients: amendIngredients(ingredients),
+          serving_size: servingSize,
+          instructions: removeBlankInstructions(instructions),
+        },
+        {
+          withCredentials: true,
+        }
+      )
+      .then((res) => {
         setEditMode(false);
         setSaveRecipeSnackbar(true);
+        const savedRecipe = res.data;
+        setCurRecipe({
+          ...curRecipe,
+          name: savedRecipe.name,
+          timeTaken: savedRecipe.time_taken,
+          ingredients: savedRecipe.ingredients,
+          instructionsArray: savedRecipe.instructions,
+          instructions: savedRecipe.instructions.join('\n'),
+          servingSize: savedRecipe.serving_size,
+        });
+        setSliderServingSize(savedRecipe.serving_size);
+
+        if (!imgUpload) return;
+
+        const formData = new FormData();
+        formData.append('image', imgUpload);
+        formData.append('recipe_id', savedRecipe.recipe_id);
+        axios
+          .post(
+            `${process.env.REACT_APP_HOST_URL}/api/upload-recipe-image`,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+              withCredentials: true,
+            }
+          )
+          .then((res2) => {
+            setCurRecipe({
+              ...curRecipe,
+              image: res2.data.image,
+            });
+          })
+          .catch((err) => console.log(err.request.response));
       })
-      .catch((err) => console.log(err.request.response, 'patch request error'));
+      .catch((err) => {
+        console.log(err.request.response);
+        redirectToLogin(err.request.response, history);
+      });
   };
 
-  const handleDiscard = () => setEditMode(false);
-
-  // view and edit recipe render functions
-  const renderRecipeViewMode = () => (
-    <div className="Recipe__grid-item">
-      <div className="Recipe__title">
-        <div>{name}</div>
-        <StarToggle value={star} onToggle={handleToggle} />
-      </div>
-
-      <section className="Recipe__author-and-time-taken">
-        <div className="Recipe__author">By {author}</div>
-        <div className="Recipe__time-taken">{timeTaken}</div>
-      </section>
-
-      <div className="Recipe__section">
-        <div className="Recipe__header">Ingredients</div>
-        {recipe.ingredients.length === 0 && (
-          <div className="Recipe__no-items-list">*No listed ingredients</div>
-        )}
-        <ul className="Recipe__list-elements">
-          {recipe.ingredients.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="Recipe__section">
-        <div className="Recipe__header">Instructions</div>
-        {recipe.instructions.length === 0 && (
-          <div className="Recipe__no-items-list">*No listed instructions</div>
-        )}
-        <ol className="Recipe__list-elements">
-          {recipe.instructions.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ol>
-      </div>
-    </div>
-  );
-
-  const renderRecipeEditMode = () => (
-    <div className="Recipe__grid-item">
-      <RecipeForm
-        name={name}
-        setName={setName}
-        timeTaken={timeTaken}
-        setTimeTaken={setTimeTaken}
-        ingredients={ingredients}
-        setIngredients={setIngredients}
-        instructions={instructions}
-        setInstructions={setInstructions}
-      />
-    </div>
-  );
+  const handleDiscardChanges = () => {
+    setEditMode(false);
+    setCurRecipe({
+      recipeId: recipe.recipe_id,
+      name: recipe.name,
+      timeTaken: recipe.time_taken,
+      ingredients: recipe.ingredients,
+      servingSize: recipe.serving_size,
+      instructionsArray: recipe.instructions,
+      instructions: recipe.instructions.join('\n'),
+      author: recipe.author,
+      image: recipe.image,
+    });
+  };
 
   return (
     <div className="Recipe">
@@ -175,49 +272,66 @@ const Recipe = ({ location }) => {
         message="Recipe added successfully"
         onClose={() => setAddRecipeSnackbar(false)}
       />
-      <div className="Recipe__back-btn-bar">
-        <IconButton onClick={() => history.goBack()}>
-          <ArrowBackIosIcon />
-        </IconButton>
-        <div>Back to recipes</div>
-      </div>
-      <Paper elevation={0} className="Recipe__paper">
-        <div className="Recipe__grid-container">
-          {editMode ? renderRecipeEditMode() : renderRecipeViewMode()}
 
-          <div className="Recipe__grid-item">
-            <RecipeItem recipe={recipe} disableClick hideStar />
-          </div>
+      {!editMode ? (
+        <div className="Recipe__back-btn-bar">
+          <IconButton onClick={() => history.goBack()}>
+            <ArrowBackIosIcon />
+          </IconButton>
+          <div>Back to recipes</div>
         </div>
+      ) : (
+        <div className="Recipe__edit-mode-padding-top" />
+      )}
 
-        {editMode && (
-          <div className="Recipe__action-buttons">
-            <ButtonBase
-              label="Save"
-              onClick={handleSave}
-              classes={clsx(classes.button, classes.editBtn)}
-            />
-            <ButtonBase
-              label="Discard"
-              onClick={handleDiscard}
-              classes={clsx(classes.button, classes.deleteBtn)}
-            />
-          </div>
-        )}
+      <Paper elevation={0} className="Recipe__paper">
+        {!editMode ? (
+          <>
+            <div className="Recipe__grid-container">
+              {renderRecipeDetails()}
 
-        {recipe.author === username && !editMode && (
-          <div className="Recipe__action-buttons">
-            <ButtonBase
-              label="Edit"
-              onClick={handleEdit}
-              classes={clsx(classes.button, classes.editBtn)}
-            />
-            <ButtonBase
-              label="Delete"
-              onClick={handleDelete}
-              classes={clsx(classes.button, classes.deleteBtn)}
-            />
-          </div>
+              <div className="Recipe__grid-item">
+                <div className="Recipe__recipe-item">
+                  <RecipeItem
+                    recipe={{
+                      ...curRecipe,
+                      time_taken: curRecipe.timeTaken,
+                    }}
+                    disableClick
+                    hideStar
+                  />
+                </div>
+              </div>
+            </div>
+
+            {recipe.author === username && (
+              <div className="Recipe__action-buttons">
+                <ButtonBase
+                  label="Edit"
+                  onClick={() => {
+                    setEditMode(true);
+                    setCurRecipe({
+                      ...curRecipe,
+                      servingSize: recipe.serving_size,
+                    });
+                  }}
+                  classes={clsx(classes.button, classes.primaryBtn)}
+                />
+                <ButtonBase
+                  label="Delete"
+                  onClick={handleDeleteRecipe}
+                  classes={clsx(classes.button, classes.secondaryBtn)}
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <EditRecipe
+            recipe={curRecipe}
+            setRecipe={setCurRecipe}
+            handleSave={handleSaveChanges}
+            handleDiscard={handleDiscardChanges}
+          />
         )}
       </Paper>
     </div>
@@ -231,10 +345,18 @@ Recipe.propTypes = {
         recipe_id: PropTypes.string,
         name: PropTypes.string,
         time_taken: PropTypes.string,
-        ingredients: PropTypes.arrayOf(PropTypes.string),
+        ingredients: PropTypes.arrayOf(
+          PropTypes.shape({
+            name: PropTypes.string,
+            quantity: PropTypes.number,
+            unit: PropTypes.string,
+          })
+        ),
+        serving_size: PropTypes.number,
         instructions: PropTypes.arrayOf(PropTypes.string),
         author: PropTypes.string,
         favourite: PropTypes.bool,
+        image: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
       }).isRequired,
       recipeAdded: PropTypes.bool,
     }),

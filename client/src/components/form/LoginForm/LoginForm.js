@@ -25,7 +25,7 @@ const LoginForm = () => {
   const handleSubmit = () => {
     axios
       .post(
-        'http://localhost:5000/api/login',
+        `${process.env.REACT_APP_HOST_URL}/api/login`,
         {
           username,
           password,

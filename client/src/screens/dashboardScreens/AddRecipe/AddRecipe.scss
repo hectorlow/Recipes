@@ -15,7 +15,28 @@
   }
 
   &__grid-item {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    max-width: 360px;
+  }
+
+  &__recipe-item {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__remove-image-btn {
+    margin-top: -48px !important;
+    transform: translate(128px, 48px);
+    z-index: 99;
+  }
+
+  &__uploaded-img {
+    width: 300px;
+    height: 190px;
+    object-fit: cover;
   }
 
   &__form-title {
@@ -47,8 +68,14 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    margin-top: 16px;
+    margin-top: 8px;
     margin-bottom: 4px;
+  }
+}
+
+@media (min-width: 600px) {
+  .AddRecipe {
+    padding: 24px;
   }
 }
 
@@ -57,16 +84,16 @@
     padding: 32px;
 
     &__paper {
-      padding: 32px;
+      padding: 24px;
     }
 
     &__grid-container {
       grid-template-columns: 1fr 1fr;
-      gap: 32px;
+      gap: 24px;
     }
 
     &__action-buttons {
-      margin-top: 32px;
+      margin-top: 24px;
       margin-bottom: 4px;
     }
   }

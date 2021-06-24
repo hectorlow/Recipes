@@ -5,6 +5,7 @@ import { Paper } from '@material-ui/core';
 import ButtonBase from 'components/UI/ButtonBase';
 import BootstrapTextField from 'components/form/BootstrapTextField';
 import AlertSnackbar from 'components/UI/AlertSnackbar';
+import { redirectToLogin } from 'src/utils';
 import './Profile.scss';
 
 const useStyles = makeStyles({
@@ -75,7 +76,10 @@ const Profile = () => {
         setSnackbarMessage('Password changed successfully');
         setOpenSnackbar(true);
       })
-      .catch((err) => alert(err.request.response));
+      .catch((err) => {
+        redirectToLogin(err.request.response, history);
+        alert(err.request.response);
+      });
   };
 
   const renderChangeUsernameForm = () => (

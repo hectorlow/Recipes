@@ -6,14 +6,17 @@ import {
   Switch,
   useHistory,
 } from 'react-router-dom';
-import { IconButton, Drawer } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { IconButton, Drawer, Button, Tooltip } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
+import RecipeBookIcon from 'images/recipe-book.png';
 import Navbar from 'components/Navbar';
 import Recipe from 'screens/dashboardScreens/Recipe';
 import AddRecipe from 'screens/dashboardScreens/AddRecipe';
 import Recipes from 'screens/dashboardScreens/Recipes';
 import Favourites from 'screens/dashboardScreens/Favourites';
 import Profile from 'screens/dashboardScreens/Profile';
+import CreditsDialog from 'components/UI/CreditsDialog';
 import './AppDashboard.scss';
 
 const routes = [
@@ -23,8 +26,18 @@ const routes = [
   { label: 'Profile', path: '/profile' },
 ];
 
+const useStyles = makeStyles({
+  creditsBtn: {
+    marginTop: '-8px',
+    width: 48,
+    alignSelf: 'center',
+  },
+});
+
 const AppDashboard = () => {
+  const classes = useStyles();
   const history = useHistory();
+  const [openCredits, setOpenCredits] = useState(false);
   const [menu, setMenu] = useState(false);
 
   // set initial screen name to current route base on path name
@@ -53,15 +66,25 @@ const AppDashboard = () => {
   return (
     <div className="AppDashboard">
       <div className="AppDashboard__navbar">
-        <Navbar routes={routes} logout />
+        <img
+          src={RecipeBookIcon}
+          alt=""
+          className="AppDashboard__app-icon AppDashboard__app-icon--desktop"
+        />
+        <Navbar routes={routes} setScreenName={setScreenName} logout />
       </div>
 
       {/* mobile navbar */}
       <div className="AppDashboard__mobile-navbar">
+        <img
+          src={RecipeBookIcon}
+          alt=""
+          className="AppDashboard__app-icon AppDashboard__app-icon--mobile"
+        />
+        <div className="AppDashboard__mobile-screen-name">{screenName}</div>
         <IconButton onClick={() => setMenu(true)}>
           <MenuIcon />
         </IconButton>
-        <div className="AppDashboard__mobile-screen-name">{screenName}</div>
       </div>
       <Drawer anchor="top" open={menu} onClose={closeMenu}>
         {routes.map((route) => renderNavLink(route.label, route.path))}
@@ -80,12 +103,24 @@ const AppDashboard = () => {
 
       <section className="AppDashboard__content">
         <Switch>
-          <Route path="/recipes/:recipeName" component={Recipe} />
           <Route path="/add-recipe" component={AddRecipe} />
-          <Route path="/recipes" component={Recipes} />
-          <Route path="/favourites" component={Favourites} />
+          <Route path="/recipes" exact component={Recipes} />
+          <Route path="/recipes/:recipeName" component={Recipe} />
+          <Route path="/favourites" exact component={Favourites} />
+          <Route path="/favourites/:recipeName" component={Recipe} />
           <Route path="/profile" component={Profile} />
         </Switch>
+        <Button
+          size="small"
+          classes={{ root: classes.creditsBtn }}
+          onClick={() => setOpenCredits(true)}
+        >
+          credits
+        </Button>
+        <CreditsDialog
+          open={openCredits}
+          handleClose={() => setOpenCredits(false)}
+        />
       </section>
     </div>
   );

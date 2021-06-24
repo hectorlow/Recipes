@@ -1,25 +1,38 @@
-import http
-import re
-from sys import meta_path
+import os
 import uuid
 import jwt
+import base64
 from datetime import datetime, timedelta
-from flask import jsonify, request, make_response
+from flask import json, jsonify, request, make_response
 from flask_cors import cross_origin
 from functools import wraps
+from werkzeug.utils import secure_filename
 
-from werkzeug.wrappers import response
+from mongoengine import base
+
 from server import app
-from .models import Favourite, User, Recipe
+from .models import Favourite, User, Recipe, Ingredient
 
-login_signup_kwargs = {
-  "origins": "http://localhost:3000",
+BACKEND_URL = "http://localhost:5000"
+STATIC_DIR = "static/images"
+FRONTEND_URL = "http://localhost:3000"
+
+get_and_post_with_credentials_kwargs = {
+  "origins": FRONTEND_URL,
   "methods": ["GET", "POST"],
+  "supports_credentials": True,
+}
+
+post_with_credentials_kwargs = {
+    "origins": FRONTEND_URL,
+  "methods": ["POST"],
+  "supports_credentials": True,
 }
 
 recipe_kwargs = {
-  "origins": "http://localhost:3000",
+  "origins": FRONTEND_URL,
   "methods": ["GET", "POST", "PATCH", "DELETE"],
+  "supports_credentials": True,
 }
 
 
@@ -29,7 +42,7 @@ def token_required(wrapped_func):
   def decorated(*args, **kwargs):
     token = None
     if not request.cookies.get("jwt"):
-      return make_response("Token expired or no token provided", 401)
+      return make_response("Token expired, login again to continue", 401)
     
     token = request.cookies.get("jwt")
     token_payload = jwt.decode(token, app.config["SECRET_KEY"], algorithms="HS256")
@@ -42,7 +55,7 @@ def token_required(wrapped_func):
   return decorated
 
 @app.route('/api/login', methods=["GET", "POST"])
-@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@cross_origin(**get_and_post_with_credentials_kwargs)
 def login():
   if request.method == "POST":
     username = request.json.get("username")
@@ -56,17 +69,17 @@ def login():
 
     token = jwt.encode({
       "user_id": user.user_id,
-      "exp": datetime.utcnow() + timedelta(minutes=30)
+      "exp": datetime.utcnow() + timedelta(minutes=120)
     }, app.config["SECRET_KEY"], algorithm="HS256")
 
     resp = make_response(jsonify({ "username": username }), 200)
-    resp.set_cookie("jwt", value=token, max_age=60*60, httponly=True, secure=True)
+    resp.set_cookie("jwt", value=token, max_age=60*60*2, httponly=True, secure=True)
     return resp
   return make_response("Something went wrong!", 500)
 
 
 @app.route('/api/signup', methods=["GET", "POST"])
-@cross_origin(**login_signup_kwargs)
+@cross_origin(origins=FRONTEND_URL, methods=["GET", "POST"])
 def signup():
   if request.method == "POST":
     username = request.json.get("username")
@@ -93,7 +106,7 @@ def signup():
 
   
 @app.route('/api/recipes', methods=["GET"])
-@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@cross_origin(origin=FRONTEND_URL, methods=["GET"], supports_credentials=True)
 def recipes():
   # i need to return an aggregation of recipes and if the recipe is favourited
   # by the current user
@@ -106,54 +119,108 @@ def recipes():
       return make_response("Invalid token", 403)
     
     recipes = list(Recipe.objects().aggregate(*[
-      {
-          '$lookup': {
-              'from': 'favourite', 
-              'localField': 'recipe_id', 
-              'foreignField': 'recipe_id', 
-              'as': 'favourite'
-          }
-      }, {
-          '$project': {
-              'recipe_id': 1, 
-              'name': 1, 
-              'time_taken': 1, 
-              'ingredients': 1, 
-              'instructions': 1,
-              'author': 1,
-              'favourite': {
-                  '$reduce': {
-                      'input': '$favourite', 
-                      'initialValue': False, 
-                      'in': {
-                          '$or': [
-                              '$$value', {
-                                  '$eq': [
-                                      '$$this.user_id',
-                                      current_user.user_id
-                                  ]
-                              }
-                          ]
-                      }
-                  }
-              }
-          }
-      }, {
-          '$project': {
-              '_id': 0
-          }
-      }
+        {
+            '$lookup': {
+                'from': 'user', 
+                'localField': 'user_id', 
+                'foreignField': 'user_id', 
+                'as': 'author'
+            }
+        }, {
+            '$addFields': {
+                'author': {
+                    '$first': '$author'
+                }
+            }
+        }, {
+            '$addFields': {
+                'author': '$author.username'
+            }
+        }, {
+            '$lookup': {
+                'from': 'favourite', 
+                'localField': 'recipe_id', 
+                'foreignField': 'recipe_id', 
+                'as': 'favourite'
+            }
+        }, {
+            '$project': {
+                'recipe_id': 1, 
+                'name': 1, 
+                'time_taken': 1, 
+                'ingredients': 1, 
+                'serving_size': 1, 
+                'instructions': 1, 
+                'author': 1, 
+                'image': 1, 
+                'favourite': {
+                    '$reduce': {
+                        'input': '$favourite', 
+                        'initialValue': False, 
+                        'in': {
+                            '$or': [
+                                '$$value', {
+                                    '$eq': [
+                                        '$$this.user_id', current_user.user_id
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }, {
+            '$project': {
+                '_id': 0
+            }
+        }
     ]))
+
     return make_response(jsonify(recipes), 200)
 
-  recipes = Recipe.objects.all()
+  recipes = list(Recipe.objects().aggregate(*[
+        {
+            '$lookup': {
+                'from': 'user', 
+                'localField': 'user_id', 
+                'foreignField': 'user_id', 
+                'as': 'author'
+            }
+        }, {
+            '$addFields': {
+                'author': {
+                    '$first': '$author'
+                }
+            }
+        }, {
+            '$addFields': {
+                'author': '$author.username'
+            }
+        }, {
+            '$project': {
+                'recipe_id': 1, 
+                'name': 1, 
+                'time_taken': 1, 
+                'ingredients': 1, 
+                'serving_size': 1, 
+                'instructions': 1, 
+                'author': 1, 
+                'image': 1, 
+            }
+        }, {
+            '$project': {
+                '_id': 0
+            }
+        }
+    ]))
   return make_response(jsonify(recipes), 200)
 
 
 @app.route('/api/recipe', methods=["GET", "POST", "PATCH", "DELETE"])
-@cross_origin(**recipe_kwargs, supports_credentials=True)
+@cross_origin(**recipe_kwargs)
 @token_required
 def add_recipe(current_user):
+  # print(request.json, 'request json')
   if request.method == "GET":
     return make_response("Get single recipe", 200)
 
@@ -161,22 +228,29 @@ def add_recipe(current_user):
     recipe_id = request.json.get('recipe_id')
     recipe = Recipe.objects(recipe_id=recipe_id).first()
     recipe.delete()
+
+    # cascading delete for favourites of recipe
+    recipe_favourites = Favourite.objects(recipe_id=recipe_id)
+    print(recipe_favourites, 'FAV')
+    recipe_favourites.delete()
     return make_response("Recipe deleted", 202)
       
-  author = current_user.username
   name = request.json.get('name')
   time_taken = request.json.get('time_taken')
   ingredients = request.json.get('ingredients')
+  serving_size = request.json.get('serving_size');
   instructions = request.json.get('instructions')
 
   if request.method == "POST":
+    # user_recipes = Recipe(author=current_user.username)
     new_recipe = Recipe(
       recipe_id=str(uuid.uuid4()),
       name=name,
       time_taken=time_taken,
       ingredients=ingredients,
+      serving_size=serving_size,
       instructions=instructions,
-      author=author,
+      user_id = current_user.user_id
     )
     new_recipe.save()
     return make_response(jsonify(new_recipe), 201)
@@ -184,21 +258,62 @@ def add_recipe(current_user):
   # get desired recipe using passed recipe_id
   recipe_id = request.json.get('recipe_id')
   recipe = Recipe.objects(recipe_id=recipe_id).first()
+  print(recipe.ingredients, 'old ingredients')
 
   if request.method == "PATCH":
     if not recipe:
       return make_response("Recipe not found", 400)
 
+    print(ingredients, 'sent ingrediets')
+
+    ingredientsArray = []
+    for item in ingredients:
+      if item['quantity'] == '':
+        item['quantity'] = 0
+      ingredientsArray.append(
+        Ingredient(id=item['id'], name=item['name'], quantity=item['quantity'], unit=item['unit'])
+      )
+
     recipe.name = name
     recipe.time_taken = time_taken
-    recipe.ingredient = ingredients
+    recipe.ingredients = ingredientsArray
+    recipe.serving_size = serving_size
     recipe.instructions = instructions
+    # recipe.image = ''
     recipe.save()
-    return make_response(f"{name} recipe updated", 204)
+    return make_response(jsonify(recipe), 201)
+
+
+@app.route('/api/upload-recipe-image', methods=["POST"])
+@cross_origin(origin=FRONTEND_URL, methods=["POST"], supports_credentials=True)
+@token_required
+def upload_recipe_image(current_user):
+  recipe_id = request.form.get('recipe_id')
+  image = request.files.get('image')
+  print(image, 'image')
+  if not recipe_id:
+    return make_response("Recipe_id not provided", 400)
+  if not image:
+    return make_response("No image sent", 400)
+
+  existing_recipe = Recipe.objects(recipe_id=recipe_id).first()
+  if not existing_recipe:
+    return make_response("Invalid recipe_id passed", 400)
+  
+  # image path relative to current folder
+  img_path = os.path.join(STATIC_DIR, recipe_id) + "." + image.filename.split('.').pop()
+  image.save(img_path)
+
+  # image path to serve from frontend
+  img_full_path = os.path.join(BACKEND_URL, img_path)
+  existing_recipe.image = img_full_path
+  existing_recipe.save()
+
+  return make_response(jsonify(existing_recipe), 201)
 
 
 @app.route('/api/favourites', methods=["GET", "POST"])
-@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@cross_origin(**get_and_post_with_credentials_kwargs)
 @token_required
 def favourite(current_user):
 
@@ -240,20 +355,36 @@ def favourite(current_user):
                 'name': '$fav_recipe.name', 
                 'time_taken': '$fav_recipe.time_taken', 
                 'ingredients': '$fav_recipe.ingredients', 
+                'serving_size': '$fav_recipe.serving_size', 
                 'instructions': '$fav_recipe.instructions', 
-                'author': '$fav_recipe.author', 
-                # to allow React frontend to receive true value properly
-                # if 'favourite': True is set manually, React doesn't receive
-                # the favourite property at all 
+                'author_id': '$fav_recipe.user_id', 
+                'image': '$fav_recipe.image', 
                 'favourite': {
                     '$eq': [
-                        '1', '1'
+                        '5', '5'
                     ]
                 }
             }
         }, {
+            '$lookup': {
+                'from': 'user', 
+                'localField': 'author_id', 
+                'foreignField': 'user_id', 
+                'as': 'author'
+            }
+        }, {
+            '$unwind': {
+                'path': '$author', 
+                'preserveNullAndEmptyArrays': False
+            }
+        }, {
+            '$addFields': {
+                'author': '$author.username'
+            }
+        }, {
             '$project': {
-                '_id': 0
+                '_id': 0, 
+                'author_id': 0
             }
         }
     ]))
@@ -279,7 +410,7 @@ def favourite(current_user):
 
 
 @app.route('/api/logout', methods=["POST"])
-@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@cross_origin(origin=FRONTEND_URL, methods=["POST"], supports_credentials=True)
 @token_required
 def logout(current_user):
   resp = make_response("Logout successfully", 204)
@@ -287,17 +418,8 @@ def logout(current_user):
   return resp
 
 
-# apis for testing and development purposes
-@app.route('/cookie', methods=["GET"])
-@cross_origin(**login_signup_kwargs)
-def cookie():
-  resp = make_response("Setting cookie", 200)
-  resp.set_cookie("server", value="server set cookie", max_age=60, domain=".app.localhost")
-  return resp
-
-
 @app.route('/api/username-change', methods=["POST"])
-@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@cross_origin(**post_with_credentials_kwargs)
 @token_required
 def change_username(current_user):
   new_username = request.json.get('username')
@@ -311,7 +433,7 @@ def change_username(current_user):
 
 
 @app.route('/api/password-change', methods=["POST"])
-@cross_origin(**login_signup_kwargs, supports_credentials=True)
+@cross_origin(**post_with_credentials_kwargs)
 @token_required
 def change_password(current_user):
   old_password = request.json.get('old_password')
@@ -322,3 +444,12 @@ def change_password(current_user):
   current_user.set_password(new_password)
   current_user.save()
   return make_response("Password changed", 201)
+
+
+# apis for testing and development purposes
+@app.route('/cookie', methods=["GET"])
+@cross_origin(origon=FRONTEND_URL)
+def cookie():
+  resp = make_response("Setting cookie", 200)
+  resp.set_cookie("server", value="server set cookie", max_age=60, domain=".app.localhost")
+  return resp

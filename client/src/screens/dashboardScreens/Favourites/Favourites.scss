@@ -12,6 +12,14 @@
     flex-direction: row;
     justify-content: center;
   }
+  
+  &__no-fav-text {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    color: #000000cc;
+  }
 }
 
 

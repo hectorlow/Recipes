@@ -6,3 +6,5 @@ class Config(object):
 
   # its mongodb settings, not mongo settings
   MONGODB_SETTINGS = { "db": "RF_recipes" }
+
+  MAX_CONTENT_LENGTH = 2 * 1000 * 1000

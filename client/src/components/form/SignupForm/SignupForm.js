@@ -34,7 +34,7 @@ const SignupForm = () => {
     }
 
     axios
-      .post('http://localhost:5000/api/signup', {
+      .post(`${process.env.REACT_APP_HOST_URL}/api/signup`, {
         username,
         password,
       })
@@ -63,6 +63,7 @@ const SignupForm = () => {
   return (
     <FormTemplate
       title="Signup"
+      subtext="Create an account to favourite and add your own recipes!"
       formFields={formFields}
       onFormSubmit={handleSubmit}
       SubmitButton={submitButton}

@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import BootstrapTextField from 'components/form/BootstrapTextField';
+import RecipeBookIcon from 'images/recipe-book.png';
 import './FormTemplate.scss';
 
-const FormTemplate = ({ title, formFields, SubmitButton }) => {
+const FormTemplate = ({ title, formFields, SubmitButton, subtext }) => {
   const renderTextField = (label, value, handleChange) => (
     <div key={label}>
       <div className="FormTemplate__form-label">{label}</div>
@@ -17,7 +18,11 @@ const FormTemplate = ({ title, formFields, SubmitButton }) => {
 
   return (
     <div>
-      <div className="FormTemplate__header">{title}</div>
+      <div className="FormTemplate__header">
+        {title}
+        <img src={RecipeBookIcon} alt="" className="FormTemplate__app-icon" />
+      </div>
+      <div className="FormTemplate__subtext">{subtext}</div>
       <form className="FormTemplate__form">
         {formFields.map((field) =>
           renderTextField(field.label, field.value, field.onChange)
@@ -40,6 +45,11 @@ FormTemplate.propTypes = {
     })
   ).isRequired,
   SubmitButton: PropTypes.func.isRequired,
+  subtext: PropTypes.string,
+};
+
+FormTemplate.defaultProps = {
+  subtext: null,
 };
 
 export default FormTemplate;

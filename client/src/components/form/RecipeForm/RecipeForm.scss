@@ -18,6 +18,27 @@
     padding: 0px;
   }
 
+  &__ingredients {
+  
+    &__input-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    &__qty-unit {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    &__action-btns {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
   &__optional-label {
     font-weight: bold;
     margin-top: 16px;
@@ -32,3 +53,14 @@
     padding: 0px 8px;
   }
 }
+
+@media (min-width: 424px) {
+  .RecipeForm__ingredients {
+    &__input-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+  }
+}
+
+// 800 split

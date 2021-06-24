@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -9,7 +10,7 @@ import {
   CardContent,
 } from '@material-ui/core';
 import StarToggle from 'components/UI/StarToggle';
-import penangLaksa from 'images/penang_laksa.jpg';
+import foodTray from 'images/food-tray.png';
 import './RecipeItem.scss';
 import axios from 'axios';
 
@@ -20,6 +21,16 @@ const useStyles = makeStyles({
   },
   media: {
     height: 190,
+  },
+  orangeBackground: {
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: 'rgb(238, 179, 113)',
+  },
+  noUploadText: {
+    backgroundColor: '#87878733',
+    textAlign: 'center',
+    lineHeight: 15,
   },
   cardContent: {
     display: 'flex',
@@ -37,6 +48,12 @@ const RecipeItem = ({ recipe, disableClick, hideStar }) => {
   const [star, setStar] = useState(recipe.favourite);
 
   const toggleStar = () => {
+    if (!localStorage.getItem('username')) {
+      // no username means user is not logged in
+      setStar(!star);
+      return;
+    }
+
     axios
       .post(
         `${process.env.REACT_APP_HOST_URL}/api/favourites`,
@@ -62,6 +79,14 @@ const RecipeItem = ({ recipe, disableClick, hideStar }) => {
   // e.g. Spicy chicken noodle becomes Spicy-chicken-noodle
   const recipeUrl = recipeName.split(' ').join('-');
 
+  const renderIngredientsString = () => {
+    let ingredientsString = ingredients.map((item) => item.name).join(', ');
+    if (ingredientsString.length > 30) {
+      ingredientsString = `${ingredientsString.slice(0, 30)}...`;
+    }
+    return ingredientsString;
+  };
+
   return (
     <Card className={classes.card}>
       <CardActionArea
@@ -72,7 +97,13 @@ const RecipeItem = ({ recipe, disableClick, hideStar }) => {
           }
         }}
       >
-        <CardMedia className={classes.media} image={penangLaksa} />
+        {recipe.image ? (
+          <CardMedia className={classes.media} image={recipe.image} />
+        ) : (
+          <CardMedia className={clsx(classes.media, classes.orangeBackground)}>
+            <img src={foodTray} alt="" className="RecipeItem__food-tray" />
+          </CardMedia>
+        )}
       </CardActionArea>
       <CardContent className={classes.cardContent}>
         <div className="RecipeItem__text">
@@ -81,7 +112,7 @@ const RecipeItem = ({ recipe, disableClick, hideStar }) => {
             <span className="RecipeItem__time-taken">{timeTaken}</span>
           </div>
           <div className="RecipeItem__ingredients">
-            {ingredients.join(', ')}
+            {renderIngredientsString()}
           </div>
           <div className="RecipeItem__author">By {author}</div>
         </div>
@@ -96,9 +127,15 @@ RecipeItem.propTypes = {
     recipe_id: PropTypes.string,
     name: PropTypes.string.isRequired,
     time_taken: PropTypes.string.isRequired,
-    ingredients: PropTypes.arrayOf(PropTypes.string).isRequired,
-    instructions: PropTypes.arrayOf(PropTypes.string).isRequired,
+    ingredients: PropTypes.arrayOf(
+      PropTypes.shape({
+        name: PropTypes.string,
+        quantity: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+        unit: PropTypes.string,
+      })
+    ).isRequired,
     author: PropTypes.string,
+    image: PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
     favourite: PropTypes.bool,
   }),
   disableClick: PropTypes.bool,

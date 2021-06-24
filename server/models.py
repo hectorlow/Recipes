@@ -4,13 +4,21 @@ from server import db
 from werkzeug.security import check_password_hash, generate_password_hash
 import time
 
+class Ingredient(db.EmbeddedDocument):
+  id = db.IntField()
+  name = db.StringField( max_length=36 )
+  quantity = db.IntField()
+  unit = db.StringField( max_length=20 )
+
 class Recipe(db.Document):
   recipe_id = db.StringField( max_length=36, unique=True )
   name = db.StringField( max_length=50 )
   time_taken = db.StringField( max_length=50 )
-  ingredients = db.ListField( StringField(), default=list )
+  ingredients = db.EmbeddedDocumentListField( Ingredient, default=list )
+  serving_size = db.IntField()
   instructions = db.ListField( StringField(), default=list )
-  author = db.StringField( max_length=50 )
+  user_id = db.StringField( max_length=36 )
+  image = db.StringField()
 
 class User(db.Document):
   user_id = db.StringField( max_length=36, unique=True )

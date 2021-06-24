@@ -1,0 +1,32 @@
+.CreditsDialog {
+
+  &__credit {
+    padding: 4px;
+  }
+
+  &__flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &__icon {
+    height: 24px;
+    width: 24px;
+    margin-right: 8px;
+  }
+
+  &__picture {
+    height: 80px;
+    width: 80px;
+    object-fit: contain;
+    margin-right: 8px;
+  }
+
+  &__large-picture {
+    height: 160px;
+    width: 110px;
+    // transform: rotate(90deg);
+    object-fit: contain;
+  }
+}
