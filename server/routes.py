@@ -14,7 +14,7 @@ from server import app
 from .models import Favourite, User, Recipe, Ingredient
 
 BACKEND_URL = "http://localhost:5000"
-STATIC_DIR = "static/images"
+STATIC_DIR = "static/uploaded_images"
 FRONTEND_URL = "http://localhost:3000"
 
 get_and_post_with_credentials_kwargs = {
