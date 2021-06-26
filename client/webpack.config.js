@@ -9,9 +9,9 @@ module.exports = {
 
   // path and filename of the production build bundle
   output: {
-    path: path.join(__dirname, 'build'),
+    path: path.join(__dirname, 'dist'),
     filename: 'index.bundle.js',
-    publicPath: '/',
+    publicPath: '',
   },
 
   // set mode of webpack
