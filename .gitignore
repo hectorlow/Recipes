@@ -3,5 +3,4 @@ venv
 .vscode
 __pycache__
 notes.txt
-.env
 uploaded_images
