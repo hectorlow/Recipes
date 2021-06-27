@@ -14,7 +14,8 @@ from server import app
 from .models import Favourite, User, Recipe, Ingredient
 
 env = os.environ.get('FLASK_ENV')
-BACKEND_URL =  "http://localhost:5000" if env == 'development' else "http://35.153.79.20"
+# BACKEND_URL =  "http://localhost:5000" if env == 'development' else "http://35.153.79.20"
+BACKEND_URL =  "http://localhost:5000" if env == 'development' else "https://myrecipes.cf"
 STATIC_DIR = "static/uploaded_images"
 FRONTEND_URL = "http://localhost:3000" if env == 'development' else "https://myrecipes.cf"
 print(FRONTEND_URL, 'allowed origins')
