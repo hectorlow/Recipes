@@ -3,6 +3,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const DirectoryNamedWebpackPlugin = require('directory-named-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
 
+const env = process.env.NODE_ENV || 'development';
+const envPath = env === 'production' ? '.env' : `.env.${env}`;
+
 module.exports = {
   // entrypoint of the project
   entry: path.join(__dirname, 'src', 'index.js'),
@@ -17,7 +20,7 @@ module.exports = {
   // set mode of webpack
   // process.env refers to machine environment variables
   // need to set NODE_ENV="devolopment" on machine to use
-  mode: process.env.NODE_ENV || 'development',
+  mode: env,
 
   // resolving path to modules and components
   resolve: {
@@ -47,7 +50,9 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'public', 'index.html'),
     }),
-    new Dotenv(),
+    new Dotenv({
+      path: envPath,
+    }),
   ],
 
   // modules describe how to handle imported files
