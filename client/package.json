@@ -2,7 +2,7 @@
   "name": "recipes",
   "homepage": ".",
   "version": "1.0.0",
-  "description": "",
+  "description": "Recipes sharing platform",
   "main": "index.js",
   "scripts": {
     "start": "webpack serve",
