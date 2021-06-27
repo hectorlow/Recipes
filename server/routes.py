@@ -301,13 +301,23 @@ def upload_recipe_image(current_user):
     return make_response("Invalid recipe_id passed", 400)
   
   # image path relative to current folder
-  img_path = os.path.join(STATIC_DIR, recipe_id) + "." + image.filename.split('.').pop()
+  img_path = os.path.join(STATIC_DIR, recipe_id) + "-" + image.filename
 
-  if not os.path.exists('static'):
-    os.mkdir('static')
-  if not os.path.exists('static/uploaded_images'):
-    os.mkdir('static/uploaded_images')
-  image.save(img_path)
+  # make static/uploaded_images directory if does not exist
+  if not os.path.exists('server/static'):
+    os.mkdir('server/static')
+  if not os.path.exists('server/static/uploaded_images'):
+    os.mkdir('server/static/uploaded_images')
+  
+  img_upload_directory = './server/static/uploaded_images'
+  for root, dirs, files in os.walk(img_upload_directory):
+    for name in files:
+      if recipe_id in name:
+        os.remove(os.path.join(img_upload_directory, name))  
+
+  # gunicorn runs on Recipes dir not server, so need to add server
+  # infront of image path
+  image.save(os.path.join('server', img_path))
 
   # image path to serve from frontend
   img_full_path = os.path.join(BACKEND_URL, img_path)

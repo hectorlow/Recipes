@@ -12,6 +12,7 @@ const FormTemplate = ({ title, formFields, SubmitButton, subtext }) => {
         value={value}
         onChange={(event) => handleChange(event.target.value)}
         fullWidth
+        type={label.toLowerCase() === 'password' ? 'password' : 'text'}
       />
     </div>
   );
