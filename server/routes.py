@@ -73,7 +73,7 @@ def login():
     }, app.config["SECRET_KEY"], algorithm="HS256")
 
     resp = make_response(jsonify({ "username": username }), 200)
-    resp.set_cookie("jwt", value=token, max_age=60*60*2, httponly=True, secure=True)
+    resp.set_cookie("jwt", value=token, max_age=60*60*2, httponly=True)
     return resp
   return make_response("Something went wrong!", 500)
 
