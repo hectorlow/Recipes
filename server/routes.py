@@ -15,7 +15,7 @@ from .models import Favourite, User, Recipe, Ingredient
 
 BACKEND_URL = "http://localhost:5000"
 STATIC_DIR = "static/uploaded_images"
-FRONTEND_URL = "http://localhost:80"
+FRONTEND_URL = "http://localhost:3000"
 
 get_and_post_with_credentials_kwargs = {
   "origins": FRONTEND_URL,
@@ -290,7 +290,6 @@ def add_recipe(current_user):
 def upload_recipe_image(current_user):
   recipe_id = request.form.get('recipe_id')
   image = request.files.get('image')
-  print(image, 'image')
   if not recipe_id:
     return make_response("Recipe_id not provided", 400)
   if not image:
@@ -302,6 +301,11 @@ def upload_recipe_image(current_user):
   
   # image path relative to current folder
   img_path = os.path.join(STATIC_DIR, recipe_id) + "." + image.filename.split('.').pop()
+
+  if not os.path.exists('static'):
+    os.mkdir('static')
+  if not os.path.exists('static/uploaded_images'):
+    os.mkdir('static/uploaded_images')
   image.save(img_path)
 
   # image path to serve from frontend
