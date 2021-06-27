@@ -16,7 +16,7 @@ from .models import Favourite, User, Recipe, Ingredient
 env = os.environ.get('FLASK_ENV')
 BACKEND_URL =  "http://localhost:5000" if env == 'development' else "http://35.153.79.20"
 STATIC_DIR = "static/uploaded_images"
-FRONTEND_URL = "http://localhost:3000"
+FRONTEND_URL = "http://localhost:3000" if env == 'development' else ["http://myrecipes.cf"]
 
 get_and_post_with_credentials_kwargs = {
   "origins": FRONTEND_URL,
