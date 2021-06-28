@@ -55,8 +55,8 @@ const Recipe = ({ location }) => {
     timeTaken: recipe.time_taken,
     ingredients: recipe.ingredients,
     servingSize: recipe.serving_size,
-    instructionsArray: recipe.instructions,
-    instructions: recipe.instructions.join('\n'),
+    instructionsArray: recipe.instructions || [],
+    instructions: recipe.instructions && recipe.instructions.join('\n') || [],
     author: recipe.author,
     image: recipe.image,
   });
@@ -194,7 +194,7 @@ const Recipe = ({ location }) => {
           time_taken: timeTaken,
           ingredients: amendIngredients(ingredients),
           serving_size: servingSize,
-          instructions: removeBlankInstructions(instructions),
+          instructions: removeBlankInstructions(instructions) || [],
         },
         {
           withCredentials: true,
