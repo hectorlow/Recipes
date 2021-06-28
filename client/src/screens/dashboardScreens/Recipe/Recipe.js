@@ -296,7 +296,7 @@ const Recipe = ({ location }) => {
 
       {!editMode ? (
         <div className="Recipe__back-btn-bar">
-          <IconButton onClick={() => history.goBack()}>
+          <IconButton onClick={() => history.push('/recipes')}>
             <ArrowBackIosIcon />
           </IconButton>
           <div>Back to recipes</div>

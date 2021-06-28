@@ -229,7 +229,6 @@ def recipes():
 @cross_origin(**recipe_kwargs)
 @token_required
 def add_recipe(current_user):
-  # print(request.json, 'request json')
   if request.method == "GET":
     return make_response("Get single recipe", 200)
 
@@ -240,7 +239,6 @@ def add_recipe(current_user):
 
     # cascading delete for favourites of recipe
     recipe_favourites = Favourite.objects(recipe_id=recipe_id)
-    print(recipe_favourites, 'FAV')
     recipe_favourites.delete()
     return make_response("Recipe deleted", 202)
       
@@ -267,13 +265,10 @@ def add_recipe(current_user):
   # get desired recipe using passed recipe_id
   recipe_id = request.json.get('recipe_id')
   recipe = Recipe.objects(recipe_id=recipe_id).first()
-  print(recipe.ingredients, 'old ingredients')
 
   if request.method == "PATCH":
     if not recipe:
       return make_response("Recipe not found", 400)
-
-    print(ingredients, 'sent ingrediets')
 
     ingredientsArray = []
     for item in ingredients:

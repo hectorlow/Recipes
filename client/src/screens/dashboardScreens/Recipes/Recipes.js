@@ -65,12 +65,14 @@ const Recipes = ({ location }) => {
   };
 
   const recipesResult = filteredRecipes.filter((recipe) => {
-    // return true if search string in name of recipe
+    // return true if search string in
+    // name, time taken or author of recipe
     if (recipe.name.toLowerCase().includes(search)) return true;
+    if (recipe.time_taken.toLowerCase().includes(search)) return true;
+    if (recipe.author.toLowerCase().includes(search)) return true;
 
+    // return true if search string in ingredients of recipe
     const { ingredients } = recipe;
-    // this for loop returns true if search string in any ingredient
-    // returns false otherwse
     for (let i = 0; i < ingredients.length; i += 1) {
       if (ingredients[i].name.toLowerCase().includes(search)) {
         return true;
