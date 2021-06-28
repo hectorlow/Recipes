@@ -46,6 +46,11 @@ const EditRecipe = ({
   const [displayImage, setDisplayImage] = useState(recipe.image);
   const [imageFile, setImageFile] = useState(false);
 
+  const handleSaveRecipe = () => {
+    const removeCurrentImage = recipe.image !== displayImage;
+    handleSave(imageFile, removeCurrentImage);
+  };
+
   return (
     <div>
       <div className="Recipe__grid-container">
@@ -102,7 +107,7 @@ const EditRecipe = ({
       <div className="Recipe__action-buttons">
         <ButtonBase
           label={newRecipe ? 'Add recipe' : 'Save'}
-          onClick={() => handleSave(imageFile)}
+          onClick={handleSaveRecipe}
           classes={clsx(classes.button, classes.primaryBtn)}
         />
         <ButtonBase

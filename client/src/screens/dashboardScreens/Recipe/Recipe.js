@@ -56,7 +56,7 @@ const Recipe = ({ location }) => {
     ingredients: recipe.ingredients,
     servingSize: recipe.serving_size,
     instructionsArray: recipe.instructions || [],
-    instructions: recipe.instructions && recipe.instructions.join('\n') || '',
+    instructions: (recipe.instructions && recipe.instructions.join('\n')) || '',
     author: recipe.author,
     image: recipe.image,
   });
@@ -182,7 +182,7 @@ const Recipe = ({ location }) => {
     );
   };
 
-  const handleSaveChanges = (imgUpload) => {
+  const handleSaveChanges = (imgUpload, removeCurrentImage) => {
     if (!validateRecipeForm(name, timeTaken, ingredients)) return;
 
     axios
@@ -215,7 +215,28 @@ const Recipe = ({ location }) => {
         });
         setSliderServingSize(savedRecipe.serving_size);
 
-        if (!imgUpload) return;
+        if (!imgUpload) {
+          // this if block checks if there is a need to remove current image
+          // if true: delete current image
+          // if false: do nothing
+          if (removeCurrentImage) {
+            axios
+              .delete(
+                `${process.env.REACT_APP_HOST_URL}/api/delete-recipe-image`,
+                {
+                  withCredentials: true,
+                  data: { recipe_id: savedRecipe.recipe_id },
+                }
+              )
+              .then(() => {
+                setCurRecipe({
+                  ...curRecipe,
+                  image: '',
+                });
+              });
+          }
+          return;
+        }
 
         const formData = new FormData();
         formData.append('image', imgUpload);

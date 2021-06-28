@@ -14,11 +14,18 @@ from server import app
 from .models import Favourite, User, Recipe, Ingredient
 
 env = os.environ.get('FLASK_ENV')
-# BACKEND_URL =  "http://localhost:5000" if env == 'development' else "http://35.153.79.20"
+# for development
+# FRONTEND_URL = "http://localhost:3000"
+# BACKEND_URL = "http://localhost:5000"
+
+# for production, ip: 35.153.79.20
 BACKEND_URL =  "http://localhost:5000" if env == 'development' else "https://myrecipes.cf"
-STATIC_DIR = "static/uploaded_images"
 FRONTEND_URL = "http://localhost:3000" if env == 'development' else ["https://myrecipes.cf", "https://www.myrecipes.cf"]
-print(FRONTEND_URL, 'allowed origins')
+STATIC_DIR = "static/uploaded_images"
+
+print('Allowed origins', FRONTEND_URL)
+print('Backend url: ', BACKEND_URL)
+
 get_and_post_with_credentials_kwargs = {
   "origins": FRONTEND_URL,
   "methods": ["GET", "POST"],
@@ -324,8 +331,26 @@ def upload_recipe_image(current_user):
   img_full_path = os.path.join(BACKEND_URL, img_path)
   existing_recipe.image = img_full_path
   existing_recipe.save()
-
   return make_response(jsonify(existing_recipe), 201)
+
+@app.route('/api/delete-recipe-image', methods=["DELETE"])
+@cross_origin(origin=FRONTEND_URL, methods=["DELETE"], supports_credentials=True)
+@token_required
+def delete_recipe_image(current_user):
+  print('delete recipe')
+  recipe_id = request.json.get('recipe_id')
+  existing_recipe = Recipe.objects(recipe_id=recipe_id).first()
+  existing_recipe.image = ''
+  existing_recipe.save()
+
+  # delete image from static folder
+  img_upload_directory = './server/static/uploaded_images'
+  for root, dirs, files in os.walk(img_upload_directory):
+    for name in files:
+      if recipe_id in name:
+        os.remove(os.path.join(img_upload_directory, name))  
+
+  return make_response("Recipe image removed", 204)
 
 
 @app.route('/api/favourites', methods=["GET", "POST"])
