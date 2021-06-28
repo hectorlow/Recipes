@@ -2,6 +2,9 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const DirectoryNamedWebpackPlugin = require('directory-named-webpack-plugin');
 const Dotenv = require('dotenv-webpack');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const UglifysJsPlugin = require('uglifyjs-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const envPath = env === 'production' ? '.env' : `.env.${env}`;
@@ -45,7 +48,10 @@ module.exports = {
     historyApiFallback: true,
   },
 
-  // plugins
+  optimization: {
+    minimizer: [new UglifysJsPlugin()],
+  },
+
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'public', 'index.html'),
@@ -53,7 +59,14 @@ module.exports = {
     new Dotenv({
       path: envPath,
     }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'disabled',
+      generateStatsFile: 'true',
+    }),
+    new CompressionPlugin(),
   ],
+
+
 
   // modules describe how to handle imported files
   module: {

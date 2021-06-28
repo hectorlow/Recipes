@@ -7,7 +7,7 @@ import {
   useHistory,
 } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import { IconButton, Drawer, Button, Tooltip } from '@material-ui/core';
+import { IconButton, Drawer, Button } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import RecipeBookIcon from 'images/recipe-book.png';
 import Navbar from 'components/Navbar';
