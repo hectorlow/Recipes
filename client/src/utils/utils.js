@@ -29,6 +29,7 @@ export const amendIngredients = (ingredients) => {
 
 export const removeBlankInstructions = (instructions) => {
   // this method remove empty or blank instruction
+  // and returns an array of instruction
   return instructions
     .split('\n')
     .filter((item) => item.trim() && item.length > 0);

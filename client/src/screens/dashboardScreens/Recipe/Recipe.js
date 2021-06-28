@@ -56,7 +56,7 @@ const Recipe = ({ location }) => {
     ingredients: recipe.ingredients,
     servingSize: recipe.serving_size,
     instructionsArray: recipe.instructions || [],
-    instructions: recipe.instructions && recipe.instructions.join('\n') || [],
+    instructions: recipe.instructions && recipe.instructions.join('\n') || '',
     author: recipe.author,
     image: recipe.image,
   });

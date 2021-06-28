@@ -59,6 +59,7 @@ const AddRecipe = () => {
             },
             recipeAdded: true,
           });
+          return;
         }
 
         const formData = new FormData();
