@@ -1,8 +1,11 @@
 .RecipeItem {
 
-  &__text {
+  &__header {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+  }
+
+  &__text {
     flex: 1;
   }
 
@@ -26,6 +29,8 @@
 
   &__ingredients {
     font-size: 16px;
+    height: 18.18px;
+    overflow: hidden;
   }
 
   &__author {

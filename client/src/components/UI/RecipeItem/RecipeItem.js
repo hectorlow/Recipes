@@ -34,7 +34,7 @@ const useStyles = makeStyles({
   },
   cardContent: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
   },
   iconButton: {
     height: 32,
@@ -106,17 +106,17 @@ const RecipeItem = ({ recipe, disableClick, hideStar }) => {
         )}
       </CardActionArea>
       <CardContent className={classes.cardContent}>
-        <div className="RecipeItem__text">
-          <div>
+        <div className="RecipeItem__header">
+          <div className="RecipeItem__text">
             <span className="RecipeItem__title">{recipeName}</span>
             <span className="RecipeItem__time-taken">{timeTaken}</span>
           </div>
-          <div className="RecipeItem__ingredients">
-            {renderIngredientsString()}
-          </div>
-          <div className="RecipeItem__author">By {author}</div>
+          {!hideStar && <StarToggle value={star} onToggle={toggleStar} />}
         </div>
-        {!hideStar && <StarToggle value={star} onToggle={toggleStar} />}
+        <div className="RecipeItem__ingredients">
+          {renderIngredientsString()}
+        </div>
+        <div className="RecipeItem__author">By {author}</div>
       </CardContent>
     </Card>
   );

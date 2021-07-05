@@ -19,12 +19,15 @@ env = os.environ.get('FLASK_ENV')
 # BACKEND_URL = "http://localhost:5000"
 
 # for production, ip: 35.153.79.20
-BACKEND_URL =  "http://localhost:5000" if env == 'development' else "https://myrecipes.cf"
-FRONTEND_URL = "http://localhost:3000" if env == 'development' else ["https://myrecipes.cf", "https://www.myrecipes.cf"]
+# BACKEND_URL =  "http://localhost:5000"
+BACKEND_URL = "https://myrecipes.cf"
+FRONTEND_URL = [
+  "https://myrecipes.cf", "https://www.myrecipes.cf", "http://localhost:3000"
+]
 STATIC_DIR = "static/uploaded_images"
 
-print('Allowed origins', FRONTEND_URL)
-print('Backend url: ', BACKEND_URL)
+print('Allowed origins:\n', ('\n ').join(FRONTEND_URL))
+print('Backend url:\n', BACKEND_URL)
 
 get_and_post_with_credentials_kwargs = {
   "origins": FRONTEND_URL,
